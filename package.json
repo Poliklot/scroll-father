@@ -1,0 +1,21 @@
+{
+  "name": "scroll-father",
+  "version": "1.0.0",
+  "description": "Scroll Father: A library for scroll events and dynamic class handling.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/poliklot/scroll-father.git"
+  },
+  "keywords": ["scroll", "events", "javascript", "typescript", "library"],
+  "author": "Poliklot",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.6.2"
+  }
+}
