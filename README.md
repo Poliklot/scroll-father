@@ -1,34 +1,34 @@
 # Scroll Father
 
-[🇷🇺 Документация на русском](docs/ru/README.md)
+- [🇬🇧 English documentation](docs/en/README.md)
 
-Scroll Father is a lightweight JavaScript/TypeScript library for handling scroll events, detecting scroll direction, and integrating `IntersectionObserver` with ease. It helps to manage dynamic classes and attributes based on scroll position and other scroll-related events.
+Scroll Father — это лёгкая библиотека на JavaScript/TypeScript для обработки событий скролла, определения направления скролла и интеграции с `IntersectionObserver`. Она помогает управлять динамическими классами и атрибутами на основе положения скролла и других событий, связанных со скроллом.
 
-## Features
+## Особенности
 
-- **Scroll state detection:** Automatically sets or removes attributes based on scroll position.
-- **Scroll direction detection:** Adds `data-scroll-direction="up"` or `down` to the body.
-- **IntersectionObserver integration:** Easily trigger callbacks when elements enter or exit the viewport.
-- **Highly customizable:** Customize attributes, elements, margins, and more.
+- **Определение состояния скролла:** Автоматически добавляет или удаляет атрибуты на основе положения скролла.
+- **Определение направления скролла:** Добавляет `data-scroll-direction="up"` или `"down"` к элементу `<body>`.
+- **Интеграция с IntersectionObserver:** Легко вызывайте коллбэки, когда элементы появляются или исчезают из области видимости.
+- **Высокая настраиваемость:** Настройте атрибуты, элементы, отступы и многое другое.
 
-## Installation
+## Установка
 
-Install via npm:
+Установите через npm:
 
 ```bash
 npm install scroll-father
 ```
 
-Or add via CDN:
+Или добавьте через CDN:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/scroll-father/dist/index.js"></script>
 ```
 
-## Usage
+## Использование
 
-### 1. Scroll State Detection
-Automatically adds an attribute (e.g., `data-scrolled`) to a specified element when the page is scrolled down.
+### 1. Определение состояния скролла
+Автоматически добавляет атрибут (например, `data-scrolled`) к указанному элементу при прокрутке страницы.
 
 ```typescript
 import ScrollFather from 'scroll-father';
@@ -39,15 +39,15 @@ const scrollFather = new ScrollFather({
 });
 ```
 
-### 2. Scroll Direction Detection
-Detects the direction of the scroll and sets an attribute (`data-scroll-direction="up"` or `"down"`) on the body element.
+### 2. Определение направления скролла
+Определяет направление скролла и устанавливает атрибут (`data-scroll-direction="up"` или `"down"`) на элементе `<body>`.
 
 ```typescript
 scrollFather.initScrollDirectionTracking();
 ```
 
-### 3. IntersectionObserver for Sections
-Initialize a section for monitoring when it enters or exits the viewport.
+### 3. IntersectionObserver для секций
+Инициализируйте секцию для отслеживания, когда она появляется или исчезает из области видимости.
 
 ```typescript
 scrollFather.initIntersectionSection(
@@ -57,17 +57,17 @@ scrollFather.initIntersectionSection(
 );
 ```
 
-## Configuration Options
+## Опции конфигурации
 
-- `ScrolledOptions`: Configuration for scroll state detection.
-    - `attribute`: The attribute name to be set on the element when scrolled (default is `data-scrolled`).
-    - `element`: The element where the attribute will be applied (default is `document.body`).
-- `IntersectionOptions`: Options for IntersectionObserver.
-    - `rootMargin`: Margin around the root for intersection (default is `-50% 0px`).
-    - `threshold`: Threshold to determine when the section is considered in view (default is `0`).
+- `ScrolledOptions`: Конфигурация для определения состояния скролла.
+    - `attribute`: Имя атрибута, который будет установлен на элементе при скролле (по умолчанию `data-scrolled`).
+    - `element`: Элемент, к которому будет применяться атрибут (по умолчанию `document.body`).
+- `IntersectionOptions`: Опции для IntersectionObserver.
+    - `rootMargin`: Отступ вокруг корня для пересечения (по умолчанию `-50% 0px`).
+    - `threshold`: Порог для определения, когда секция считается в области видимости (по умолчанию `0`).
 
-## Contributing
-We welcome contributions! Feel free to submit issues or pull requests via our [GitHub repository](https://github.com/Poliklot/scroll-father).
+## Сотрудничество
+Мы приветствуем вклад! Не стесняйтесь отправлять проблемы или пул-реквесты через наш [репозиторий на GitHub](https://github.com/Poliklot/scroll-father).
 
-## License
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/Poliklot/scroll-father/blob/master/LICENSE) file for details.
+## Лицензия
+Проект лицензирован под лицензией MIT — см. файл [LICENSE](https://github.com/Poliklot/scroll-father/blob/master/LICENSE) для подробностей.
