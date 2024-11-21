@@ -1,0 +1,112 @@
+/* styles.scss */
+
+/* Общие стили */
+body {
+	margin: 0;
+	font-family: Arial, sans-serif;
+	background-color: #333;
+}
+
+/* Стили обертки */
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+/* Стили хедера */
+.header {
+	background-color: #333;
+	color: #fff;
+	padding: 20px;
+	position: sticky;
+	top: 0;
+	z-index: 1000;
+	transition:
+		background-color 0.3s,
+		transform 0.2s ease-in-out;
+}
+
+.header[data-scrolled] {
+	background-color: #222;
+}
+
+.header h1 {
+	margin: 0;
+	color: #fff;
+}
+
+.header__title-wrapper {
+	display: inline-flex;
+	align-items: baseline;
+	column-gap: 2px;
+
+	a {
+		text-decoration: none;
+		transition: opacity 0.1s ease-in-out;
+
+		@media (any-hover: hover) {
+			&:hover {
+				opacity: 0.7;
+			}
+		}
+	}
+}
+
+.nav ul {
+	list-style: none;
+	display: flex;
+	gap: 15px;
+	padding: 0;
+}
+
+.nav a {
+	color: #fff;
+	text-decoration: none;
+}
+
+.nav a:hover {
+	text-decoration: underline;
+}
+
+.main {
+	background-color: #f0f0f0;
+	flex: 1 1 auto;
+}
+
+/* Стили для секций */
+.section {
+	padding: 100px 20px;
+	opacity: 0.5;
+	transition: opacity 0.5s;
+}
+
+.section.in-view {
+	opacity: 1;
+}
+
+.section:nth-child(even) {
+	background-color: #e0e0e0;
+}
+
+.section:nth-child(odd) {
+	background-color: #fff;
+}
+
+/* Стили футера */
+.footer {
+	background-color: #333;
+	color: #fff;
+	text-align: center;
+	padding: 20px;
+	margin-top: auto;
+}
+
+/* Стили для направления скролла */
+body[data-scroll-direction='down'] .header {
+	transform: translateY(-100%);
+}
+
+body[data-scroll-direction='up'] .header {
+	transform: translateY(0);
+}
