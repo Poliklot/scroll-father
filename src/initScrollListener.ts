@@ -1,16 +1,34 @@
-type ScrolledOptions = {
+/** Параметры для настройки отслеживания состояния скролла страницы. */
+interface ScrolledOptions {
+	/**
+	 * Атрибут, который будет добавлен к элементу при скролле.
+	 *
+	 * @default 'data-scrolled'
+	 */
 	attribute?: string;
+
+	/**
+	 * Элемент, для которого будет отслеживаться скролл.
+	 *
+	 * @default document.body
+	 */
 	element?: HTMLElement;
-};
+}
 
 /**
  * Инициализирует отслеживание состояния скролла страницы.
  *
- * @param {ScrolledOptions} [options={}] - Опции для настройки отслеживания состояния скролла. Default is `{}`
+ * При первом скролле добавляет указанный атрибут(`attribute`) к указанному элементу(`element`).
+ *
+ * @param {ScrolledOptions} [options] - Опции для настройки отслеживания состояния скролла.
+ * @param {string | undefined} [options.attribute='data-scrolled'] - Атрибут, который будет добавлен к элементу при
+ *   скролле. Default is `'data-scrolled'`
+ * @param {HTMLElement | undefined} [options.element=document.body] - Элемент, для которого будет отслеживаться скролл.
+ *   Default is `document.body`
  */
 export function initScrollListener(options: ScrolledOptions = {}): void {
-	const attribute = options.attribute || 'data-scrolled';
-	const element = options.element || document.body;
+	const { attribute = 'data-scrolled', element = document.body } = options;
+
 	let scrolled = false;
 
 	const handleScroll = () => {
