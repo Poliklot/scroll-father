@@ -37,7 +37,7 @@ You can import only the functions you need:
 
 ```javascript
 // Import individual functions
-import { initScrollListener, smoothScrollToElement } from 'scroll-father';
+import { trackScrollState, smoothScrollToElement } from 'scroll-father';
 ```
 
 Or import everything at once (not recommended):
@@ -54,9 +54,9 @@ import * as ScrollFather from 'scroll-father';
 Automatically adds an attribute (e.g., `data-scrolled`) to a specified element when scrolling the page.
 
 ```javascript
-import { initScrollListener } from 'scroll-father';
+import { trackScrollState } from 'scroll-father';
 
-initScrollListener({
+trackScrollState({
 	attribute: 'data-scrolled', // Attribute name (default: 'data-scrolled')
 	element: document.body, // Element to set the attribute (default: document.body)
 });
@@ -155,8 +155,8 @@ smootherAllAnchorLinks();
 - **initScrollDirectionTracking()** Tracks the scroll direction and sets the `data-scroll-direction` attribute on
   `<body>` with values `"up"` or `"down"`.
 
-- **initScrollListener(options?)** Tracks the scroll state of the page and sets an attribute (default: `data-scrolled`)
-  on a specified element when scrolling.
+- **trackScrollState(options?)** Tracks the scroll state of the page and sets an attribute (default: `data-scrolled`) on
+  a specified element when scrolling.
 
 - **smootherAllAnchorLinks()** Adds smooth scrolling to all anchor links on the page, providing a smoother transition to
   target elements.

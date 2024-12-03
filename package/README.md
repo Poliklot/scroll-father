@@ -60,8 +60,6 @@ import { trackScrollState } from 'scroll-father';
 trackScrollState({
 	attribute: 'data-scrolled', // Имя атрибута (по умолчанию 'data-scrolled')
 	element: document.body, // Элемент для установки атрибута (по умолчанию document.body)
-	onScrollStart: () => console.log('Скролл начался!'),
-	onScrollReset: () => console.log('Скролл сброшен!'),
 });
 ```
 
