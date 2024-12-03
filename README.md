@@ -38,7 +38,7 @@ npm i scroll-father
 
 ```javascript
 // Импорт отдельных функций
-import { initScrollListener, smoothScrollToElement } from 'scroll-father';
+import { trackScrollState, smoothScrollToElement } from 'scroll-father';
 ```
 
 Или импортировать всё сразу (не стоит так делать):
@@ -55,11 +55,13 @@ import * as ScrollFather from 'scroll-father';
 Автоматически добавляет атрибут (например, `data-scrolled`) к указанному элементу при прокрутке страницы.
 
 ```javascript
-import { initScrollListener } from 'scroll-father';
+import { trackScrollState } from 'scroll-father';
 
-initScrollListener({
+trackScrollState({
 	attribute: 'data-scrolled', // Имя атрибута (по умолчанию 'data-scrolled')
 	element: document.body, // Элемент для установки атрибута (по умолчанию document.body)
+	onScrollStart: () => console.log('Скролл начался!'),
+	onScrollReset: () => console.log('Скролл сброшен!'),
 });
 ```
 
@@ -156,7 +158,7 @@ smootherAllAnchorLinks();
 - **initScrollDirectionTracking()** Отслеживает направление скролла и устанавливает атрибут `data-scroll-direction` на
   `<body>` со значениями `"up"` или `"down"`.
 
-- **initScrollListener(options?)** Отслеживает состояние скролла страницы и устанавливает атрибут (по умолчанию
+- **trackScrollState(options?)** Отслеживает состояние скролла страницы и устанавливает атрибут (по умолчанию
   `data-scrolled`) на указанном элементе при прокрутке.
 
 - **smootherAllAnchorLinks()** Добавляет плавную прокрутку ко всем ссылкам-якорям на странице, обеспечивая более плавный

@@ -1,3 +1,6 @@
-import { initScrollListener } from '../../dist';
+import { trackScrollState } from '../../dist';
 
-initScrollListener();
+trackScrollState({
+	onScrollStart: () => console.log('Скролл начался!'),
+	onScrollReset: () => console.log('Скролл сброшен!'),
+});
