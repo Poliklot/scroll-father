@@ -1,6 +1,6 @@
 {
 	"name": "scroll-father",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"description": "Scroll Father: A library for scroll events and dynamic class handling.",
 	"type": "module",
 	"scripts": {
