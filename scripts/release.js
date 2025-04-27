@@ -31,11 +31,14 @@ import ora from 'ora';
 			newVersion = version;
 		}
 
-		// Обновляем версию в package/package.json
+		// Обновляем версию в package/package.json и в корневом package.json
 		if (newVersion) {
 			pkg.version = newVersion;
+			rootPkg.version = newVersion; // Обновляем версию также в корневом package.json
+
 			fs.writeFileSync(packagePackagePath, JSON.stringify(pkg, null, '\t'));
-			console.log(chalk.green(`\nВерсия обновлена до ${pkg.version}\n`));
+			fs.writeFileSync(rootPackagePath, JSON.stringify(rootPkg, null, '\t'));
+			console.log(chalk.green(`\nВерсия обновлена до ${newVersion}\n`));
 		}
 
 		// Сборка проекта
@@ -81,6 +84,45 @@ import ora from 'ora';
 		// Сохраняем список скопированных элементов в файл
 		fs.writeFileSync('./copiedItems.json', JSON.stringify(copiedItems, null, '\t'));
 
+		// Запрос на создание git тега
+		const { createTag } = await inquirer.prompt([
+			{
+				type: 'confirm',
+				name: 'createTag',
+				message: `Создать git-тег v${newVersion}?`,
+				default: true,
+			},
+		]);
+
+		if (createTag) {
+			try {
+				// Создание git тега
+				console.log(chalk.blue(`\nСоздание git-тега v${newVersion}...`));
+				spinner.start('Создание тега...');
+				execSync(`git tag -a v${newVersion} -m "Release version ${newVersion}"`, { stdio: 'pipe' });
+				spinner.succeed(`Git-тег v${newVersion} успешно создан`);
+
+				// Запрос на отправку тега в удаленный репозиторий
+				const { pushTag } = await inquirer.prompt([
+					{
+						type: 'confirm',
+						name: 'pushTag',
+						message: 'Отправить тег в удаленный репозиторий?',
+						default: false,
+					},
+				]);
+
+				if (pushTag) {
+					spinner.start('Отправка тега...');
+					execSync('git push --tags', { stdio: 'pipe' });
+					spinner.succeed('Тег отправлен в удаленный репозиторий');
+				}
+			} catch (error) {
+				spinner.fail(`Ошибка при работе с git: ${error.message}`);
+				console.error(chalk.red('Подробная ошибка:'), error);
+			}
+		}
+
 		// Запрос подтверждения на публикацию
 		const { publish } = await inquirer.prompt([
 			{
@@ -110,21 +152,25 @@ import ora from 'ora';
 		console.error(chalk.red('Произошла ошибка:'), error);
 	} finally {
 		spinner.start('Удаление временных файлов...');
-		const itemsToRemove = JSON.parse(fs.readFileSync('./copiedItems.json', 'utf-8'));
+		try {
+			const itemsToRemove = JSON.parse(fs.readFileSync('./copiedItems.json', 'utf-8'));
 
-		itemsToRemove.forEach(item => {
-			if (fs.existsSync(item)) {
-				const stats = fs.statSync(item);
-				if (stats.isDirectory()) {
-					fs.rmSync(item, { recursive: true, force: true });
-				} else {
-					fs.unlinkSync(item);
+			itemsToRemove.forEach(item => {
+				if (fs.existsSync(item)) {
+					const stats = fs.statSync(item);
+					if (stats.isDirectory()) {
+						fs.rmSync(item, { recursive: true, force: true });
+					} else {
+						fs.unlinkSync(item);
+					}
 				}
-			}
-		});
-		// Удаляем файл с списком скопированных элементов
-		fs.unlinkSync('./copiedItems.json');
-		spinner.succeed('Удалены временные файлы!');
-		process.exit(1);
+			});
+			// Удаляем файл с списком скопированных элементов
+			fs.unlinkSync('./copiedItems.json');
+			spinner.succeed('Удалены временные файлы!');
+		} catch (error) {
+			spinner.fail(`Ошибка при удалении временных файлов: ${error.message}`);
+		}
+		process.exit(0); // Используем 0 вместо 1, так как 1 обычно означает ошибку
 	}
 })();

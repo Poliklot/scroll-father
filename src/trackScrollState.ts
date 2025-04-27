@@ -5,7 +5,7 @@ interface ScrollTrackerOptions {
 	 *
 	 * @default 'data-scrolled'
 	 */
-	attribute?: string;
+	attribute?: string | false;
 
 	/**
 	 * Элемент, для которого отслеживается скролл.
@@ -43,13 +43,13 @@ export function trackScrollState(options: ScrollTrackerOptions = {}): void {
 
 		if (scrollPosition > 0) {
 			if (!scrolled) {
-				element.setAttribute(attribute, '');
+				attribute && element.setAttribute(attribute, '');
 				scrolled = true;
 				onScrollStart?.(); // Вызов коллбэка при начале скролла
 			}
 		} else {
 			if (scrolled) {
-				element.removeAttribute(attribute);
+				attribute && element.removeAttribute(attribute);
 				scrolled = false;
 				onScrollReset?.(); // Вызов коллбэка при сбросе скролла
 			}
