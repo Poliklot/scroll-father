@@ -35,33 +35,33 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 
 	document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 		anchor.addEventListener('click', function (e) {
-		e.preventDefault();
-		const href = anchor.getAttribute('href');
+			e.preventDefault();
+			const href = anchor.getAttribute('href');
 
-		if (href === '#') return;
+			if (href === '#') return;
 
-		const targetId = href!.substring(1);
-		const elementToScroll = document.getElementById(targetId);
+			const targetId = href!.substring(1);
+			const elementToScroll = document.getElementById(targetId);
 
-		if (!elementToScroll) return;
+			if (!elementToScroll) return;
 
-		let offsetTop = 0;
-		let currentElement: HTMLElement | null = elementToScroll;
+			let offsetTop = 0;
+			let currentElement: HTMLElement | null = elementToScroll;
 
-		while (currentElement) {
-			offsetTop += currentElement.offsetTop;
-			currentElement = currentElement.offsetParent as HTMLElement;
+			while (currentElement) {
+				offsetTop += currentElement.offsetTop;
+				currentElement = currentElement.offsetParent as HTMLElement;
 
-			if (!currentElement || currentElement === document.body || currentElement === document.documentElement) {
-			break;
+				if (!currentElement || currentElement === document.body || currentElement === document.documentElement) {
+					break;
+				}
 			}
-		}
 
-		window.scrollTo({
-			top: offsetTop - settings.offset,
-			left: 0,
-			behavior: settings.behavior,
-		});
+			window.scrollTo({
+				top: offsetTop - settings.offset,
+				left: 0,
+				behavior: settings.behavior,
+			});
 		});
 	});
 }
