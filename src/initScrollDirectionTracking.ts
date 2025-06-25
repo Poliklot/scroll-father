@@ -2,7 +2,7 @@
  * Инициализирует отслеживание направления скролла страницы. Устанавливает атрибут `data-scroll-direction` на `body` с
  * направлениями `up` или `down`.
  */
-export function initScrollDirectionTracking(): void {
+export function initScrollDirectionTracking(onlyHuman: boolean = false): void {
 	let lastScrollTop = 0;
 	let isScrolling = false;
 
@@ -16,10 +16,19 @@ export function initScrollDirectionTracking(): void {
 		isScrolling = false;
 	};
 
-	window.addEventListener('scroll', () => {
-		if (!isScrolling) {
-			window.requestAnimationFrame(handleScrollDirection);
-			isScrolling = true;
-		}
-	});
+	if (onlyHuman) {
+		init('wheel')
+		init('touchmove')
+	} else {
+		init('scroll')
+	}
+
+	function init(eventType: string) {
+		window.addEventListener(eventType, () => {
+			if (!isScrolling) {
+				window.requestAnimationFrame(handleScrollDirection);
+				isScrolling = true;
+			}
+		});
+	}
 }
