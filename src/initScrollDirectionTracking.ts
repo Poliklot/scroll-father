@@ -1,8 +1,8 @@
 /**
- * Инициализирует отслеживание направления скролла страницы. Устанавливает атрибут `data-scroll-direction` на `body` с
- * направлениями `up` или `down`.
+ * Инициализирует отслеживание направления скролла страницы. Устанавливает атрибут `data-scroll-direction` на `body` с направлениями `up` или `down`.
+ * @param trackUserEventsOnly Если true, отслеживаются только события `wheel` и `touchmove`. Если false, также отслеживается событие `scroll`. По умолчанию false.
  */
-export function initScrollDirectionTracking(onlyHuman: boolean = false): void {
+export function initScrollDirectionTracking(trackUserEventsOnly: boolean = false): void {
 	let lastScrollTop = 0;
 	let isScrolling = false;
 
@@ -16,7 +16,7 @@ export function initScrollDirectionTracking(onlyHuman: boolean = false): void {
 		isScrolling = false;
 	};
 
-	if (onlyHuman) {
+	if (trackUserEventsOnly) {
 		init('wheel')
 		init('touchmove')
 	} else {
