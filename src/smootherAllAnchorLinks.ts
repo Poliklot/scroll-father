@@ -40,7 +40,7 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 	if (location.hash) {
 		const hash = location.hash
 		clearHash()
-		scrollToHash(hash)
+		scrollToElementByHashId(hash)
 	}
 
 	// ! При нажатии
@@ -56,11 +56,11 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 
 			// ! Иначе плавный скролл
 			e.preventDefault() // ! Здесь роль clearHash выполняет
-			scrollToHash(url.hash)
+			scrollToElementByHashId(url.hash)
 		});
 	});
 
-	function scrollToHash(hash: string) {
+	function scrollToElementByHashId(hash: string) {
 			if (hash === '#') return;
 
 			const targetId = hash!.substring(1);
