@@ -41,13 +41,6 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 		const hash = location.hash
 		clearHash()
 		scrollToHash(hash)
-
-		const id = setTimeout(() => {
-			if (settings.clearHash === false) {
-				returnHash(hash)
-			}
-			clearTimeout(id)
-		}, 1)
 	}
 
 	// ! При нажатии
@@ -92,6 +85,13 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 				left: 0,
 				behavior: settings.behavior,
 			});
+
+			const idTimeout = setTimeout(() => {
+			if (settings.clearHash === false) {
+				returnHash(hash)
+			}
+			clearTimeout(idTimeout)
+		}, 1)
 	}
 
 	function clearHash() {
