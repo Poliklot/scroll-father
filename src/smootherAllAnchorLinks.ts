@@ -4,6 +4,8 @@ export interface SmoothScrollOptions {
 	offset?: number;
 	/** Тип прокрутки: 'smooth' (плавная) или 'auto' (мгновенная) */
 	behavior?: ScrollBehavior;
+	/** Очистка хэша из location */
+	clearHash?: boolean;
 }
 
 /**
@@ -28,7 +30,8 @@ export interface SmoothScrollOptions {
 export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void {
 	const settings = {
 		offset: 0,
-		behavior: 'smooth' as ScrollBehavior
+		behavior: 'smooth' as ScrollBehavior,
+		clearHash: true
 	};
 
 	Object.assign(settings, options);
@@ -38,6 +41,13 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 		const hash = location.hash
 		clearHash()
 		scrollToHash(hash)
+
+		const id = setTimeout(() => {
+			if (settings.clearHash === false) {
+				returnHash(hash)
+			}
+			clearTimeout(id)
+		}, 1)
 	}
 
 	// ! При нажатии
@@ -87,6 +97,12 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 	function clearHash() {
 		const url = new URL(location.href, location.origin);
 		url.hash = '';
+		history.replaceState(null, '', url.toString());
+	}
+
+	function returnHash(hash: string) {
+		const url = new URL(location.href, location.origin);
+		url.hash = hash;
 		history.replaceState(null, '', url.toString());
 	}
 }
