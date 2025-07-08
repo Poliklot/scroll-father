@@ -1,4 +1,5 @@
-import { trackScrollState } from '../../dist';
+import { smootherAllAnchorLinks, trackScrollState } from '../../dist';
+smootherAllAnchorLinks();
 
 trackScrollState({
 	onScrollStart: () => console.log('Скролл начался!'),
