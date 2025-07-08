@@ -4,6 +4,8 @@ export interface SmoothScrollOptions {
 	offset?: number;
 	/** Тип прокрутки: 'smooth' (плавная) или 'auto' (мгновенная) */
 	behavior?: ScrollBehavior;
+	/** Очистка хэша из location */
+	clearHash?: boolean;
 }
 
 /**
@@ -14,33 +16,54 @@ export interface SmoothScrollOptions {
  * @returns {void}
  *
  * @example
- * // Базовое использование с настройками по умолчанию
+ * * Базовое использование с настройками по умолчанию
  * smootherAllAnchorLinks();
  *
  * @example
- * // С учетом фиксированной шапки (отступ 60px)
+ * * С учетом фиксированной шапки (отступ 60px)
  * smootherAllAnchorLinks({ offset: 60 });
  *
  * @example
- * // С мгновенной прокруткой
+ * * С мгновенной прокруткой
  * smootherAllAnchorLinks({ behavior: 'auto' });
  */
 export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void {
 	const settings = {
 		offset: 0,
-		behavior: 'smooth' as ScrollBehavior
+		behavior: 'smooth' as ScrollBehavior,
+		clearHash: true
 	};
 
 	Object.assign(settings, options);
 
-	document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+	// ! При загрузке
+	if (location.hash) {
+		const hash = location.hash
+		clearHash()
+		scrollToHash(hash)
+	}
+
+	// ! При нажатии
+	document.querySelectorAll('a[href*="#"]').forEach(anchor => {
 		anchor.addEventListener('click', function (e) {
-			e.preventDefault();
-			const href = anchor.getAttribute('href');
+			const href = anchor.getAttribute('href')
+			const url = new URL(href!, location.origin);
 
-			if (href === '#') return;
+			// ! Если на другой сайт или на тот же сайт но страницы разные то ничего не делаем
+			if (url.origin !== location.origin || url.pathname !== location.pathname) {
+				return
+			}
 
-			const targetId = href!.substring(1);
+			// ! Иначе плавный скролл
+			e.preventDefault()
+			scrollToHash(url.hash)
+		});
+	});
+
+	function scrollToHash(hash: string) {
+			if (hash === '#') return;
+
+			const targetId = hash!.substring(1);
 			const elementToScroll = document.getElementById(targetId);
 
 			if (!elementToScroll) return;
@@ -57,11 +80,29 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 				}
 			}
 
-			window.scrollTo({
+			scrollTo({
 				top: offsetTop - settings.offset,
 				left: 0,
 				behavior: settings.behavior,
 			});
-		});
-	});
+
+			const idTimeout = setTimeout(() => {
+			if (settings.clearHash === false) {
+				returnHash(hash)
+			}
+			clearTimeout(idTimeout)
+		}, 1)
+	}
+
+	function clearHash() {
+		const url = new URL(location.href, location.origin);
+		url.hash = '';
+		history.replaceState(null, '', url.toString());
+	}
+
+	function returnHash(hash: string) {
+		const url = new URL(location.href, location.origin);
+		url.hash = hash;
+		history.replaceState(null, '', url.toString());
+	}
 }
