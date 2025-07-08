@@ -55,7 +55,7 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 			}
 
 			// ! Иначе плавный скролл
-			e.preventDefault()
+			e.preventDefault() // ! Здесь роль clearHash выполняет
 			scrollToHash(url.hash)
 		});
 	});
