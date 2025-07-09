@@ -49,8 +49,9 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 	// ! При нажатии
 	document.querySelectorAll('a[href*="#"]').forEach(anchor => {
 		anchor.addEventListener('click', function (e) {
-			const href = anchor.getAttribute('href')
-			const urlTarget = new URL(href!, origin);
+			const href = anchor.getAttribute('href');
+
+			const urlTarget = new URL(href!, location.href);
 
 			// ! Если на другой сайт или на тот же сайт но страницы разные то ничего не делаем
 			if (urlTarget.origin !== origin || urlTarget.pathname !== pathname) {
