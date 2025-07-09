@@ -36,31 +36,34 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 
 	Object.assign(settings, options);
 
+	const { origin, pathname, hash, href } = location
+	const urlCurrent = new URL(href, origin);
+
 	// ! При загрузке
-	if (location.hash) {
-		const hash = location.hash
+	if (hash) {
+		const hashTemp = hash
 		clearHash()
-		scrollToHash(hash)
+		scrollToElementById(hashTemp)
 	}
 
 	// ! При нажатии
 	document.querySelectorAll('a[href*="#"]').forEach(anchor => {
 		anchor.addEventListener('click', function (e) {
 			const href = anchor.getAttribute('href')
-			const url = new URL(href!, location.origin);
+			const urlTarget = new URL(href!, origin);
 
 			// ! Если на другой сайт или на тот же сайт но страницы разные то ничего не делаем
-			if (url.origin !== location.origin || url.pathname !== location.pathname) {
+			if (urlTarget.origin !== origin || urlTarget.pathname !== pathname) {
 				return
 			}
 
 			// ! Иначе плавный скролл
-			e.preventDefault()
-			scrollToHash(url.hash)
+			e.preventDefault() // ! Здесь роль clearHash выполняет
+			scrollToElementById(urlTarget.hash)
 		});
 	});
 
-	function scrollToHash(hash: string) {
+	function scrollToElementById(hash: string) {
 			if (hash === '#') return;
 
 			const targetId = hash!.substring(1);
@@ -80,7 +83,7 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 				}
 			}
 
-			scrollTo({
+			window.scrollTo({
 				top: offsetTop - settings.offset,
 				left: 0,
 				behavior: settings.behavior,
@@ -95,14 +98,12 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 	}
 
 	function clearHash() {
-		const url = new URL(location.href, location.origin);
-		url.hash = '';
-		history.replaceState(null, '', url.toString());
+		urlCurrent.hash = '';
+		history.replaceState(null, '', urlCurrent.toString());
 	}
 
 	function returnHash(hash: string) {
-		const url = new URL(location.href, location.origin);
-		url.hash = hash;
-		history.replaceState(null, '', url.toString());
+		urlCurrent.hash = hash;
+		history.replaceState(null, '', urlCurrent.toString());
 	}
 }
