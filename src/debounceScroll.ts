@@ -3,7 +3,7 @@
  * чем с указанной задержкой.
  *
  * @param {() => void} callback - Функция, которая будет вызываться при прокрутке.
- * @param {number} [delay=200] - Задержка в миллисекундах перед вызовом функции. Default is `200`
+ * @param {number} - Задержка в миллисекундах перед вызовом функции. Default is `200`
  */
 export function debounceScroll(callback: () => void, delay: number = 200): void {
 	let timeout: number | null = null;
