@@ -1,4 +1,3 @@
-
 export interface SmoothScrollOptions {
 	/** Отступ сверху в пикселях (для учета фиксированных элементов) */
 	offset?: number;
@@ -6,6 +5,8 @@ export interface SmoothScrollOptions {
 	behavior?: ScrollBehavior;
 	/** Очистка хэша из location */
 	clearHash?: boolean;
+	/** Установка offset top перед каждым скроллом */
+	setOffsetBeforeScroll?: Function;
 }
 
 /**
@@ -49,6 +50,10 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 	// ! При нажатии
 	document.querySelectorAll('a[href*="#"]').forEach(anchor => {
 		anchor.addEventListener('click', function (e) {
+			if (options.setOffsetBeforeScroll) {
+				settings.offset = options.setOffsetBeforeScroll()
+			}
+
 			const href = anchor.getAttribute('href');
 
 			const urlTarget = new URL(href!, location.href);
