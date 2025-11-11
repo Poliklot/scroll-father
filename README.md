@@ -143,6 +143,32 @@ import { smootherAllAnchorLinks } from 'scroll-father';
 smootherAllAnchorLinks();
 ```
 
+#### Можно установить отступ статичный
+```javascript
+	let offset = 0;
+	if (window.innerWidth >= breakpoints['2xl']) offset = 96;
+	else offset = 60;
+	smootherAllAnchorLinks({
+		offset,
+	});
+```
+
+#### Можно установить отступ динамический перед каждым новым скроллом
+```javascript
+	const setOffsetBeforeScroll = () => {
+		if (document.body.getAttribute('data-scroll-direction') === 'up') {
+			if (window.innerWidth >= breakpoints['2xl']) {
+				return 96;
+			}
+			return 60;
+		}
+		return 0;
+	};
+	smootherAllAnchorLinks({
+		setOffsetBeforeScroll,
+	});
+```
+
 ## Описание функций
 
 - **debounceScroll(callback, delay?)** Добавляет обработчик прокрутки с дебаунсом. Колбэк `callback` будет вызываться не

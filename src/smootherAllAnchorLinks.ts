@@ -1,4 +1,3 @@
-
 export interface SmoothScrollOptions {
 	/** Отступ сверху в пикселях (для учета фиксированных элементов) */
 	offset?: number;
@@ -6,6 +5,8 @@ export interface SmoothScrollOptions {
 	behavior?: ScrollBehavior;
 	/** Очистка хэша из location */
 	clearHash?: boolean;
+	/** Установка offset top перед каждым скроллом */
+	setOffsetBeforeScroll?: () => number;
 }
 
 /**
@@ -28,21 +29,21 @@ export interface SmoothScrollOptions {
  * smootherAllAnchorLinks({ behavior: 'auto' });
  */
 export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void {
-	const settings = {
-		offset: 0,
-		behavior: 'smooth' as ScrollBehavior,
-		clearHash: true
-	};
+	const {
+		offset = 0,
+		behavior = 'smooth' as ScrollBehavior,
+		clearHash = true,
+		setOffsetBeforeScroll
+	} = options;
 
-	Object.assign(settings, options);
-
+	const getScrollOffset = () => setOffsetBeforeScroll ? setOffsetBeforeScroll() : offset;
 	const { origin, pathname, hash, href } = location
 	const urlCurrent = new URL(href, origin);
 
 	// ! При загрузке
 	if (hash) {
 		const hashTemp = hash
-		clearHash()
+		clearHashInHistory()
 		scrollToElementById(hashTemp)
 	}
 
@@ -85,20 +86,20 @@ export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void 
 			}
 
 			window.scrollTo({
-				top: offsetTop - settings.offset,
+				top: offsetTop - getScrollOffset(),
 				left: 0,
-				behavior: settings.behavior,
+				behavior: behavior,
 			});
 
 			const idTimeout = setTimeout(() => {
-			if (settings.clearHash === false) {
-				returnHash(hash)
+			if (clearHash === false) {
+				returnHash(hash);
 			}
-			clearTimeout(idTimeout)
-		}, 1)
+			clearTimeout(idTimeout);
+		}, 1);
 	}
 
-	function clearHash() {
+	function clearHashInHistory() {
 		urlCurrent.hash = '';
 		history.replaceState(null, '', urlCurrent.toString());
 	}
