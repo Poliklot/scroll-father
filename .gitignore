@@ -1,6 +1,11 @@
 /node_modules
 /dist
 /demos/public
-/package-lock.json
 /package/*.tgz
+/package/index.js
+/package/index.js.map
+/package/index.d.ts
+/package/ScrollFather.min.js
+/package/ScrollFather.min.js.map
+/package/types/
 .lh

@@ -6,7 +6,10 @@
 	"scripts": {
 		"build": "rollup -c",
 		"smoke": "node scripts/smoke-test.js",
-		"test": "npm run build && npm run smoke",
+		"ssr": "node scripts/ssr-test.js",
+		"size:check": "node scripts/bundle-size-check.js",
+		"pack:check": "node scripts/pack-check.js",
+		"test": "npm run build && npm run smoke && npm run ssr && npm run size:check && npm run pack:check",
 		"watch": "rollup -c -w",
 		"release": "node scripts/release.js",
 		"demos": "BUILD_TARGET=demos npm run build && concurrently --kill-others \"vite\" \"npm run watch\""
