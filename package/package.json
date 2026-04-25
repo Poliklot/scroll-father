@@ -1,10 +1,29 @@
 {
 	"name": "scroll-father",
-	"version": "2.2.4",
+	"version": "2.4.0",
 	"description": "Scroll Father: A library for scroll events and dynamic class handling.",
 	"type": "module",
 	"main": "index.js",
 	"types": "index.d.ts",
+	"exports": {
+		".": {
+			"types": "./index.d.ts",
+			"import": "./index.js",
+			"default": "./index.js"
+		},
+		"./ScrollFather.min.js": "./ScrollFather.min.js"
+	},
+	"unpkg": "./ScrollFather.min.js",
+	"jsdelivr": "./ScrollFather.min.js",
+	"files": [
+		"index.js",
+		"index.d.ts",
+		"ScrollFather.min.js",
+		"*.map",
+		"types",
+		"README.md",
+		"LICENSE"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/poliklot/scroll-father.git"

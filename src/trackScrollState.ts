@@ -1,5 +1,8 @@
+import { canUseDOM, noop } from './dom';
+import type { Cleanup } from './types';
+
 /** Параметры для настройки отслеживания состояния скролла. */
-interface ScrollTrackerOptions {
+export interface ScrollTrackerOptions {
 	/**
 	 * Атрибут, который будет добавлен к элементу при скролле.
 	 *
@@ -29,12 +32,17 @@ interface ScrollTrackerOptions {
  *
  * @param {ScrollTrackerOptions} [options] - Опции для настройки отслеживания состояния скролла.
  *
- * @returns {void}
+ * @returns Функция для удаления обработчика скролла.
  */
-export function trackScrollState(options: ScrollTrackerOptions = {}): void {
+export function trackScrollState(options: ScrollTrackerOptions = {}): Cleanup {
+	if (!canUseDOM()) {
+		return noop;
+	}
+
 	const { attribute = 'data-scrolled', element = document.body, onScrollStart, onScrollReset } = options;
 
 	let scrolled = false;
+	let frameId: number | null = null;
 
 	/** Обработчик скролла. */
 	const handleScroll = () => {
@@ -59,15 +67,29 @@ export function trackScrollState(options: ScrollTrackerOptions = {}): void {
 	// Определяем, какой элемент слушать
 	const target = element === document.body ? window : element;
 
+	const schedule = () => {
+		if (frameId !== null) {
+			return;
+		}
+
+		frameId = requestAnimationFrame(() => {
+			frameId = null;
+			handleScroll();
+		});
+	};
+
 	// Добавляем слушатель скролла
-	target.addEventListener(
-		'scroll',
-		() => {
-			requestAnimationFrame(handleScroll);
-		},
-		{ passive: true },
-	);
+	target.addEventListener('scroll', schedule, { passive: true });
 
 	// Проверяем состояние при инициализации
 	handleScroll();
+
+	return () => {
+		target.removeEventListener('scroll', schedule);
+
+		if (frameId !== null) {
+			cancelAnimationFrame(frameId);
+			frameId = null;
+		}
+	};
 }

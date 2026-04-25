@@ -2,171 +2,230 @@
 
 [🇷🇺 Документация на русском](https://github.com/Poliklot/scroll-father/blob/master/README.md)
 
-Scroll Father is a lightweight and versatile JavaScript/TypeScript library that provides a set of useful functions for
-working with scroll interactions in web applications. It allows developers to easily integrate required functionality by
-importing only the necessary features, optimizing load times and improving performance.
+Scroll Father is a tiny TypeScript toolkit for everyday scroll UI: smooth anchors, scrollspy, reveal effects, progress
+bars, scroll direction tracking, and infinite loading. It does not replace native scrolling with heavy magic; it gives you
+small DOM primitives with cleanup, accessibility-friendly defaults, and a zero-dependency core.
 
 ## Features
 
-- **Modularity:** Import only the functions you need.
-- **Rich functionality:** Functions for detecting scroll direction, smooth scrolling, tracking elements on the page, and
-  more.
-- **High performance:** Optimized code with minimal impact on bundle size.
-- **TypeScript support:** Full type definitions for convenient development and auto-completion.
-- **Ease of use:** Simple and intuitive APIs for quick integration.
+- **Anchor scroll:** smooth anchors with fixed-header offset, hash modes, delegated listener, and focus management.
+- **ScrollSpy:** active section, active nav links, `aria-current`, and `data-active-section`.
+- **Reveal on scroll:** AOS-like state engine without animation presets or dependencies.
+- **Scroll progress:** CSS variable and callback for reading progress bars or scroll containers.
+- **Infinite loading:** sentinel-based loading with `IntersectionObserver`, states, retry, abort, and prefill.
+- **Legacy helpers:** debounce scroll, scroll state, direction tracking, and simple infinite scroll.
+- **TypeScript:** option and callback types are exported from the package.
+- **Cleanup-first:** initializers return cleanup functions or a safe no-op in SSR.
 
 ## Installation
-
-Install via npm:
 
 ```bash
 npm i scroll-father
 ```
 
-Or add it via CDN:
+CDN/IIFE:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/scroll-father/dist/ScrollFather.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/scroll-father/ScrollFather.min.js"></script>
 ```
 
-# Quick Start
+## Quick Start
 
-### Importing required functions
-
-You can import only the functions you need:
-
-```javascript
-// Import individual functions
-import { trackScrollState, smoothScrollToElement } from 'scroll-father';
+```ts
+import {
+	initAnchorScroll,
+	initScrollSpy,
+	initRevealOnScroll,
+	initScrollProgress,
+	initInfiniteLoader,
+} from 'scroll-father';
 ```
 
-Or import everything at once (not recommended):
+Most functions return `cleanup()` — call it when the behavior is no longer needed.
 
-```javascript
-// Import the entire library
-import * as ScrollFather from 'scroll-father';
-```
+## Anchor Scroll
 
-## Using the functions
+Fixes the usual anchor pain: fixed headers, hash handling, focus, and dynamic links.
 
-### 1. Scroll state detection
-
-Automatically adds an attribute (e.g., `data-scrolled`) to a specified element when scrolling the page.
-
-```javascript
-import { trackScrollState } from 'scroll-father';
-
-trackScrollState({
-	attribute: 'data-scrolled', // Attribute name (default: 'data-scrolled')
-	element: document.body, // Element to set the attribute (default: document.body)
+```ts
+const cleanupAnchors = initAnchorScroll({
+	offset: () => document.querySelector('.header')?.clientHeight ?? 0,
+	behavior: 'smooth',
+	updateHash: 'replace', // 'keep' | 'clear' | 'replace' | 'push' | false
+	focusTarget: true,
+	delegated: true,
 });
 ```
 
-### 2. Scroll direction detection
+The old API remains as a compatible alias:
 
-Detects the scroll direction and sets an attribute (`data-scroll-direction="up"` or `"down"`) on the `<body>` element.
-
-```javascript
-import { initScrollDirectionTracking } from 'scroll-father';
-
-initScrollDirectionTracking();
-```
-
-### 3. Infinite scrolling
-
-Loads additional content when the user reaches the end of the page.
-
-```javascript
-import { initInfiniteScroll } from 'scroll-father';
-
-initInfiniteScroll(
-	async () => {
-		// Your code for loading additional content
-		await fetchMoreData();
-	},
-	{
-		threshold: 300, // Threshold value in pixels from the end of the page (default: 300)
-	},
-);
-```
-
-### 4. Scroll debounce
-
-Adds a debounced scroll event handler, ensuring that the provided callback is not called more frequently than the
-specified delay.
-
-```javascript
-import { debounceScroll } from 'scroll-father';
-
-debounceScroll(() => {
-	// Your code to be called during debounced scrolling
-}, 200); // Delay in milliseconds before the function is called (default: 200)
-```
-
-### 5. Element visibility tracking
-
-Initializes tracking of an element using `IntersectionObserver`. Calls functions when the element appears or disappears
-from the viewport.
-
-```javascript
-import { initIntersectionSection } from 'scroll-father';
-
-const $section = document.querySelector('#my-section');
-
-initIntersectionSection(
-	$section,
-	() => {
-		// Called when the element enters the viewport
-		console.log('Element entered the viewport');
-	},
-	() => {
-		// Called when the element leaves the viewport
-		console.log('Element left the viewport');
-	},
-	{
-		rootMargin: '-50% 0px', // Viewport margins (default: '-50% 0px')
-		threshold: 0, // Visibility threshold (default: 0)
-	},
-);
-```
-
-### 6. Smooth scrolling for anchor links
-
-Adds smooth scrolling to all anchor links on the page.
-
-```javascript
+```ts
 import { smootherAllAnchorLinks } from 'scroll-father';
 
-smootherAllAnchorLinks();
+const cleanup = smootherAllAnchorLinks({ offset: 80, clearHash: false });
 ```
 
-## Function descriptions
+## ScrollSpy
 
-- **debounceScroll(callback, delay?)** Adds a scroll event handler with debounce. The `callback` function will not be
-  called more often than once every `delay` milliseconds.
+Highlights the active navigation link and section.
 
-- **initInfiniteScroll(loadMoreCallback, options?)** Implements infinite scrolling, calling `loadMoreCallback` when the
-  user reaches the end of the page. The `options.threshold` parameter specifies how many pixels from the end of the page
-  the callback should be triggered.
+```ts
+const cleanupSpy = initScrollSpy({
+	sections: 'section[id]',
+	navLinks: '.docs-nav a[href^="#"]',
+	offset: 96,
+	activeClass: 'is-active',
+	sectionActiveClass: 'is-current-section',
+	attribute: 'data-active-section',
+	ariaCurrent: 'location',
+	onChange: ({ activeId, direction }) => {
+		console.log(activeId, direction);
+	},
+});
+```
 
-- **initIntersectionSection($section, onStart, onEnd, options?)** Tracks the `$section` element using
-  `IntersectionObserver`. Calls `onStart` when the element enters the viewport and `onEnd` when it leaves.
+## Reveal On Scroll
 
-- **initScrollDirectionTracking()** Tracks the scroll direction and sets the `data-scroll-direction` attribute on
-  `<body>` with values `"up"` or `"down"`.
+The library only sets state, classes, and CSS variables. Keep the actual animation in CSS.
 
-- **trackScrollState(options?)** Tracks the scroll state of the page and sets an attribute (default: `data-scrolled`) on
-  a specified element when scrolling.
+```ts
+const cleanupReveal = initRevealOnScroll({
+	elements: '[data-reveal]',
+	visibleClass: 'is-visible',
+	attribute: 'data-reveal-state',
+	once: true,
+	stagger: 80,
+});
+```
 
-- **smootherAllAnchorLinks()** Adds smooth scrolling to all anchor links on the page, providing a smoother transition to
-  target elements.
+```css
+[data-reveal] {
+	opacity: 0;
+	transform: translateY(24px);
+	transition:
+		opacity 0.45s ease,
+		transform 0.45s ease;
+	transition-delay: var(--reveal-delay, 0ms);
+}
 
-## Contributing
+[data-reveal-state='visible'] {
+	opacity: 1;
+	transform: translateY(0);
+}
+```
 
-We welcome contributions! Feel free to submit issues or pull requests via our
-[GitHub repository](https://github.com/Poliklot/scroll-father).
+## Scroll Progress
+
+Writes `0..1` progress into a CSS variable and callback.
+
+```ts
+const cleanupProgress = initScrollProgress({
+	cssVariable: '--reading-progress',
+	attribute: 'data-reading-progress',
+	onChange: ({ progress }) => {
+		console.log(Math.round(progress * 100));
+	},
+});
+```
+
+```css
+.progress-bar {
+	transform: scaleX(var(--reading-progress, 0));
+	transform-origin: left;
+}
+```
+
+## Infinite Loader
+
+A sentinel-based loader for lists, catalogs, and feeds.
+
+```ts
+const cleanupLoader = initInfiniteLoader({
+	sentinel: '#load-more-sentinel',
+	rootMargin: '400px 0px',
+	prefill: true,
+	loadMore: async ({ page, signal, done }) => {
+		const response = await fetch(`/api/items?page=${page}`, { signal });
+		const items = await response.json();
+
+		renderItems(items);
+
+		if (items.length === 0) {
+			done();
+		}
+	},
+	onStateChange: ({ state }) => {
+		document.body.dataset.loaderState = state;
+	},
+	onError: ({ error, retry }) => {
+		console.error(error);
+		showRetryButton(retry);
+	},
+});
+```
+
+## Legacy Helpers
+
+### Scroll State
+
+```ts
+const cleanupScrollState = trackScrollState({
+	attribute: 'data-scrolled',
+	element: document.body,
+	onScrollStart: () => console.log('Scroll started'),
+	onScrollReset: () => console.log('Scroll reset'),
+});
+```
+
+### Scroll Direction
+
+```ts
+const cleanupDirection = initScrollDirectionTracking(false, 6);
+```
+
+Sets `data-scroll-direction="up|down"` on `body`.
+
+### Debounce Scroll
+
+```ts
+const cleanupDebounce = debounceScroll(() => {
+	console.log('scroll settled');
+}, 200);
+```
+
+### Simple Infinite Scroll
+
+```ts
+const cleanupInfiniteScroll = initInfiniteScroll(fetchMoreData, {
+	threshold: 300,
+	onError: error => console.error(error),
+});
+```
+
+### Intersection Section
+
+```ts
+const cleanupObserver = initIntersectionSection(
+	document.querySelector('#hero')!,
+	() => console.log('visible'),
+	() => console.log('hidden'),
+);
+```
+
+## API
+
+- `initAnchorScroll(options?)`
+- `initScrollSpy(options?)`
+- `initRevealOnScroll(options?)`
+- `initScrollProgress(options?)`
+- `initInfiniteLoader(options)`
+- `smootherAllAnchorLinks(options?)`
+- `trackScrollState(options?)`
+- `initScrollDirectionTracking(trackUserEventsOnly?, thresholdPx?)`
+- `debounceScroll(callback, delay?)`
+- `initInfiniteScroll(loadMoreCallback, options?)`
+- `initIntersectionSection(section, onStart, onEnd, options?)`
 
 ## License
 
-This project is licensed under the MIT License - see the
-[LICENSE](https://github.com/Poliklot/scroll-father/blob/master/LICENSE) file for details.
+MIT — see [LICENSE](https://github.com/Poliklot/scroll-father/blob/master/LICENSE).

@@ -1,11 +1,20 @@
+import { canUseDOM, noop } from './dom';
+import type { Cleanup } from './types';
+
 /**
  * Добавляет обработчик прокрутки с дебаунсом. Эта функция гарантирует, что переданный колбэк будет вызываться не чаще,
  * чем с указанной задержкой.
  *
  * @param {() => void} callback - Функция, которая будет вызываться при прокрутке.
  * @param {number} - Задержка в миллисекундах перед вызовом функции. Default is `200`
+ *
+ * @returns Функция для удаления обработчика скролла.
  */
-export function debounceScroll(callback: () => void, delay: number = 200): void {
+export function debounceScroll(callback: () => void, delay: number = 200): Cleanup {
+	if (!canUseDOM()) {
+		return noop;
+	}
+
 	let timeout: number | null = null;
 
 	const debouncedFunction = () => {
@@ -16,4 +25,13 @@ export function debounceScroll(callback: () => void, delay: number = 200): void 
 	};
 
 	window.addEventListener('scroll', debouncedFunction, { passive: true });
+
+	return () => {
+		window.removeEventListener('scroll', debouncedFunction);
+
+		if (timeout !== null) {
+			clearTimeout(timeout);
+			timeout = null;
+		}
+	};
 }

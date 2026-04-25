@@ -2,200 +2,254 @@
 
 - [🇬🇧 English documentation](https://github.com/Poliklot/scroll-father/blob/master/docs/en/README.md)
 
-Scroll Father — это лёгкая и многофункциональная библиотека на JavaScript/TypeScript, предоставляющая набор полезных
-функций для работы со скроллом в веб-приложениях. Она позволяет разработчикам легко интегрировать необходимую
-функциональность, импортируя только нужные функции, что способствует оптимизации загрузки и повышению
-производительности.
+Scroll Father — лёгкий TypeScript toolkit для повседневного scroll UI: плавные якоря, scrollspy, reveal-анимации,
+progress bar, определение направления скролла и бесконечная загрузка. Библиотека не заменяет нативный скролл тяжёлой
+магией, а даёт аккуратные DOM-примитивы с cleanup, accessibility-настройками и zero-dependency core.
 
-## Особенности
+## Возможности
 
-- **Модульность:** Импортируйте только те функции, которые вам необходимы.
-- **Богатый функционал:** Функции для определения направления скролла, плавной прокрутки, отслеживания элементов на
-  странице и многое другое.
-- **Высокая производительность:** Оптимизированный код с минимальным влиянием на размер бандла.
-- **Поддержка TypeScript:** Полные типы для удобной разработки и автодополнения.
-- **Лёгкость использования:** Простые и понятные API для быстрой интеграции.
+- **Anchor scroll:** плавные якоря с fixed-header offset, hash-режимами, delegated listener и focus для accessibility.
+- **ScrollSpy:** активная секция, подсветка меню, `aria-current` и `data-active-section`.
+- **Reveal on scroll:** AOS-подобный state engine без CSS-пресетов и зависимостей.
+- **Scroll progress:** CSS variable и callback для progress bar чтения или scroll-контейнера.
+- **Infinite loading:** sentinel-based загрузка через `IntersectionObserver`, состояния, retry, abort и prefill.
+- **Legacy helpers:** debounce scroll, scroll state, direction tracking и простая infinite scroll функция.
+- **TypeScript:** типы экспортируются из пакета.
+- **Cleanup-first:** инициализаторы возвращают функцию очистки или безопасно no-op в SSR.
 
 ## Установка
-
-Установите через npm:
 
 ```bash
 npm i scroll-father
 ```
 
-Или добавьте через CDN:
+CDN/IIFE:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/scroll-father/dist/ScrollFather.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/scroll-father/ScrollFather.min.js"></script>
 ```
 
-# Быстрый старт
+## Быстрый старт
 
-### Импорт необходимых функций
-
-Вы можете импортировать только те функции, которые вам нужны:
-
-```javascript
-// Импорт отдельных функций
-import { trackScrollState, smoothScrollToElement } from 'scroll-father';
+```ts
+import {
+	initAnchorScroll,
+	initScrollSpy,
+	initRevealOnScroll,
+	initScrollProgress,
+	initInfiniteLoader,
+} from 'scroll-father';
 ```
 
-Или импортировать всё сразу (не стоит так делать):
+Большинство функций возвращают `cleanup()` — вызовите его, когда поведение больше не нужно.
 
-```javascript
-// Импорт всей библиотеки
-import * as ScrollFather from 'scroll-father';
-```
+## Anchor Scroll
 
-## Использование функций
+Решает типичную боль якорей: fixed header, hash, focus, динамические ссылки.
 
-### 1. Определение состояния скролла
-
-Автоматически добавляет атрибут (например, `data-scrolled`) к указанному элементу при прокрутке страницы.
-
-```javascript
-import { trackScrollState } from 'scroll-father';
-
-trackScrollState({
-	attribute: 'data-scrolled', // Имя атрибута (по умолчанию 'data-scrolled')
-	element: document.body, // Элемент для установки атрибута (по умолчанию document.body)
-	onScrollStart: () => console.log('Скролл начался!'),
-	onScrollReset: () => console.log('Скролл сброшен!'),
+```ts
+const cleanupAnchors = initAnchorScroll({
+	offset: () => document.querySelector('.header')?.clientHeight ?? 0,
+	behavior: 'smooth',
+	updateHash: 'replace', // 'keep' | 'clear' | 'replace' | 'push' | false
+	focusTarget: true,
+	delegated: true,
 });
 ```
 
-### 2. Определение направления скролла
+Совместимый alias старого API тоже остаётся:
 
-Определяет направление скролла и устанавливает атрибут (`data-scroll-direction="up"` или `"down"`) на элементе `<body>`.
-
-```javascript
-import { initScrollDirectionTracking } from 'scroll-father';
-
-initScrollDirectionTracking();
-```
-
-### 3. Реализация бесконечной прокрутки
-
-Загружает дополнительный контент, когда пользователь достигает конца страницы.
-
-```javascript
-import { initInfiniteScroll } from 'scroll-father';
-
-initInfiniteScroll(
-	async () => {
-		// Ваш код для загрузки дополнительного контента
-		await fetchMoreData();
-	},
-	{
-		threshold: 300, // Пороговое значение в пикселях до конца страницы (по умолчанию 300)
-	},
-);
-```
-
-### 4. Дебаунс события прокрутки
-
-Добавляет обработчик прокрутки с дебаунсом, гарантируя, что переданный колбэк будет вызываться не чаще, чем с указанной
-задержкой.
-
-```javascript
-import { debounceScroll } from 'scroll-father';
-
-debounceScroll(() => {
-	// Ваш код, который будет вызываться при прокрутке с дебаунсом
-}, 200); // Задержка в миллисекундах перед вызовом функции (по умолчанию 200)
-```
-
-### 5. Отслеживание видимости элемента
-
-Инициализирует отслеживание элемента с помощью `IntersectionObserver`. Вызывает функции при появлении или исчезновении
-элемента из области просмотра.
-
-```javascript
-import { initIntersectionSection } from 'scroll-father';
-
-const $section = document.querySelector('#my-section');
-
-initIntersectionSection(
-	$section,
-	() => {
-		// Функция вызывается, когда элемент входит в область видимости
-		console.log('Элемент появился в области видимости');
-	},
-	() => {
-		// Функция вызывается, когда элемент выходит из области видимости
-		console.log('Элемент вышел из области видимости');
-	},
-	{
-		rootMargin: '-50% 0px', // Отступы для области видимости (по умолчанию '-50% 0px')
-		threshold: 0, // Пороговое значение видимости (по умолчанию 0)
-	},
-);
-```
-
-### 6. Плавная прокрутка для якорных ссылок
-
-Добавляет плавную прокрутку ко всем ссылкам-якорям на странице.
-
-```javascript
+```ts
 import { smootherAllAnchorLinks } from 'scroll-father';
 
-smootherAllAnchorLinks();
+const cleanup = smootherAllAnchorLinks({ offset: 80, clearHash: false });
 ```
 
-#### Можно установить отступ статичный
-```javascript
-	let offset = 0;
-	if (window.innerWidth >= breakpoints['2xl']) offset = 96;
-	else offset = 60;
-	smootherAllAnchorLinks({
-		offset,
-	});
+Можно установить статичный offset:
+
+```ts
+let offset = 0;
+if (window.innerWidth >= breakpoints['2xl']) offset = 96;
+else offset = 60;
+
+smootherAllAnchorLinks({ offset });
 ```
 
-#### Можно установить отступ динамический перед каждым новым скроллом
-```javascript
-	const setOffsetBeforeScroll = () => {
-		if (document.body.getAttribute('data-scroll-direction') === 'up') {
-			if (window.innerWidth >= breakpoints['2xl']) {
-				return 96;
-			}
-			return 60;
+Можно вычислять offset перед каждым новым скроллом:
+
+```ts
+const setOffsetBeforeScroll = () => {
+	if (document.body.getAttribute('data-scroll-direction') === 'up') {
+		return window.innerWidth >= breakpoints['2xl'] ? 96 : 60;
+	}
+
+	return 0;
+};
+
+smootherAllAnchorLinks({ setOffsetBeforeScroll });
+```
+
+## ScrollSpy
+
+Подсвечивает активный пункт меню и секцию.
+
+```ts
+const cleanupSpy = initScrollSpy({
+	sections: 'section[id]',
+	navLinks: '.docs-nav a[href^="#"]',
+	offset: 96,
+	activeClass: 'is-active',
+	sectionActiveClass: 'is-current-section',
+	attribute: 'data-active-section',
+	ariaCurrent: 'location',
+	onChange: ({ activeId, direction }) => {
+		console.log(activeId, direction);
+	},
+});
+```
+
+## Reveal On Scroll
+
+Библиотека только ставит state, классы и CSS variables. Анимацию удобно держать в CSS.
+
+```ts
+const cleanupReveal = initRevealOnScroll({
+	elements: '[data-reveal]',
+	visibleClass: 'is-visible',
+	attribute: 'data-reveal-state',
+	once: true,
+	stagger: 80,
+});
+```
+
+```css
+[data-reveal] {
+	opacity: 0;
+	transform: translateY(24px);
+	transition:
+		opacity 0.45s ease,
+		transform 0.45s ease;
+	transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal-state='visible'] {
+	opacity: 1;
+	transform: translateY(0);
+}
+```
+
+## Scroll Progress
+
+Пишет прогресс `0..1` в CSS variable и callback.
+
+```ts
+const cleanupProgress = initScrollProgress({
+	cssVariable: '--reading-progress',
+	attribute: 'data-reading-progress',
+	onChange: ({ progress }) => {
+		console.log(Math.round(progress * 100));
+	},
+});
+```
+
+```css
+.progress-bar {
+	transform: scaleX(var(--reading-progress, 0));
+	transform-origin: left;
+}
+```
+
+## Infinite Loader
+
+Новый sentinel-based loader для списков, каталогов и лент.
+
+```ts
+const cleanupLoader = initInfiniteLoader({
+	sentinel: '#load-more-sentinel',
+	rootMargin: '400px 0px',
+	prefill: true,
+	loadMore: async ({ page, signal, done }) => {
+		const response = await fetch(`/api/items?page=${page}`, { signal });
+		const items = await response.json();
+
+		renderItems(items);
+
+		if (items.length === 0) {
+			done();
 		}
-		return 0;
-	};
-	smootherAllAnchorLinks({
-		setOffsetBeforeScroll,
-	});
+	},
+	onStateChange: ({ state }) => {
+		document.body.dataset.loaderState = state;
+	},
+	onError: ({ error, retry }) => {
+		console.error(error);
+		showRetryButton(retry);
+	},
+});
 ```
 
-## Описание функций
+## Legacy Helpers
 
-- **debounceScroll(callback, delay?)** Добавляет обработчик прокрутки с дебаунсом. Колбэк `callback` будет вызываться не
-  чаще, чем раз в `delay` миллисекунд.
+### Scroll State
 
-- **initInfiniteScroll(loadMoreCallback, options?)** Реализует бесконечную прокрутку, вызывая `loadMoreCallback`, когда
-  пользователь достигает конца страницы. Параметр `options.threshold` определяет, за сколько пикселей до конца страницы
-  следует вызвать колбэк.
+```ts
+const cleanupScrollState = trackScrollState({
+	attribute: 'data-scrolled',
+	element: document.body,
+	onScrollStart: () => console.log('Скролл начался'),
+	onScrollReset: () => console.log('Скролл сброшен'),
+});
+```
 
-- **initIntersectionSection($section, onStart, onEnd, options?)** Отслеживает элемент `$section` с помощью
-  `IntersectionObserver`. Вызывает `onStart`, когда элемент появляется в области видимости, и `onEnd`, когда исчезает.
+### Scroll Direction
 
-- **initScrollDirectionTracking()** Отслеживает направление скролла и устанавливает атрибут `data-scroll-direction` на
-  `<body>` со значениями `"up"` или `"down"`.
+```ts
+const cleanupDirection = initScrollDirectionTracking(false, 6);
+```
 
-- **trackScrollState(options?)** Отслеживает состояние скролла страницы и устанавливает атрибут (по умолчанию
-  `data-scrolled`) на указанном элементе при прокрутке.
+Ставит `data-scroll-direction="up|down"` на `body`.
 
-- **smootherAllAnchorLinks()** Добавляет плавную прокрутку ко всем ссылкам-якорям на странице, обеспечивая более плавный
-  переход к целевым элементам.
+### Debounce Scroll
 
-## Сотрудничество
+```ts
+const cleanupDebounce = debounceScroll(() => {
+	console.log('scroll settled');
+}, 200);
+```
 
-Мы приветствуем вклад! Не стесняйтесь отправлять проблемы или пул-реквесты через наш
-[репозиторий на GitHub](https://github.com/Poliklot/scroll-father).
+### Simple Infinite Scroll
+
+```ts
+const cleanupInfiniteScroll = initInfiniteScroll(fetchMoreData, {
+	threshold: 300,
+	onError: error => console.error(error),
+});
+```
+
+### Intersection Section
+
+```ts
+const cleanupObserver = initIntersectionSection(
+	document.querySelector('#hero')!,
+	() => console.log('visible'),
+	() => console.log('hidden'),
+);
+```
+
+## API
+
+- `initAnchorScroll(options?)`
+- `initScrollSpy(options?)`
+- `initRevealOnScroll(options?)`
+- `initScrollProgress(options?)`
+- `initInfiniteLoader(options)`
+- `smootherAllAnchorLinks(options?)`
+- `trackScrollState(options?)`
+- `initScrollDirectionTracking(trackUserEventsOnly?, thresholdPx?)`
+- `debounceScroll(callback, delay?)`
+- `initInfiniteScroll(loadMoreCallback, options?)`
+- `initIntersectionSection(section, onStart, onEnd, options?)`
 
 ## Лицензия
 
-Проект лицензирован под лицензией MIT — см. файл
-[LICENSE](https://github.com/Poliklot/scroll-father/blob/master/LICENSE) для подробностей.
+MIT — см. [LICENSE](https://github.com/Poliklot/scroll-father/blob/master/LICENSE).

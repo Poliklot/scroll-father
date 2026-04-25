@@ -5,8 +5,38 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
 
+const VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
+const RELEASE_VERSION_FILES = new Set(['package.json', 'package/package.json']);
+
+function validateVersion(version) {
+	return VERSION_PATTERN.test(version) || 'Введите версию в формате x.y.z или x.y.z-prerelease';
+}
+
+function getTrackedChanges() {
+	const output = execSync('git status --porcelain --untracked-files=no', { encoding: 'utf-8' }).trim();
+
+	if (!output) {
+		return [];
+	}
+
+	return output.split('\n').map(line => ({
+		status: line.slice(0, 2).trim(),
+		path: line.slice(3).trim(),
+	}));
+}
+
+function tagExists(tagName) {
+	try {
+		execSync(`git rev-parse -q --verify refs/tags/${tagName}`, { stdio: 'ignore' });
+		return true;
+	} catch {
+		return false;
+	}
+}
+
 (async () => {
 	const spinner = ora();
+	let exitCode = 0;
 
 	try {
 		// Пути к файлам package.json
@@ -26,9 +56,14 @@ import ora from 'ora';
 					name: 'version',
 					message: `Введите новую версию (текущая версия ${pkg.version}):`,
 					default: pkg.version,
+					validate: validateVersion,
 				},
 			]);
 			newVersion = version;
+		}
+
+		if (validateVersion(newVersion) !== true) {
+			throw new Error(`Некорректная версия: ${newVersion}`);
 		}
 
 		// Обновляем версию в package/package.json и в корневом package.json
@@ -84,23 +119,66 @@ import ora from 'ora';
 		// Сохраняем список скопированных элементов в файл
 		fs.writeFileSync('./copiedItems.json', JSON.stringify(copiedItems, null, '\t'));
 
+		const tagName = `v${newVersion}`;
+		let canCreateTag = true;
+
+		if (tagExists(tagName)) {
+			canCreateTag = false;
+			console.log(chalk.yellow(`\nТег ${tagName} уже существует. Создание тега будет пропущено.`));
+		}
+
+		const trackedChanges = getTrackedChanges();
+		if (trackedChanges.length > 0) {
+			const changedPaths = trackedChanges.map(change => change.path);
+			const onlyVersionFilesChanged = changedPaths.every(filePath => RELEASE_VERSION_FILES.has(filePath));
+
+			if (onlyVersionFilesChanged) {
+				const { commitVersionFiles } = await inquirer.prompt([
+					{
+						type: 'confirm',
+						name: 'commitVersionFiles',
+						message: 'Создать коммит с обновлением версии перед тегом?',
+						default: true,
+					},
+				]);
+
+				if (commitVersionFiles) {
+					execSync(`git commit --only package.json package/package.json -m "chore: release ${tagName}"`, {
+						stdio: 'inherit',
+					});
+				} else {
+					canCreateTag = false;
+					console.log(chalk.yellow('Git-тег будет пропущен, чтобы не привязать релиз к коммиту со старой версией.'));
+				}
+			} else {
+				canCreateTag = false;
+				console.log(chalk.yellow('\nВ рабочем дереве есть незакоммиченные tracked-изменения:'));
+				trackedChanges.forEach(change => {
+					console.log(chalk.yellow(` - ${change.status} ${change.path}`));
+				});
+				console.log(chalk.yellow('Git-тег будет пропущен. Сначала закоммитьте изменения и повторите релиз.'));
+			}
+		}
+
 		// Запрос на создание git тега
-		const { createTag } = await inquirer.prompt([
-			{
-				type: 'confirm',
-				name: 'createTag',
-				message: `Создать git-тег v${newVersion}?`,
-				default: true,
-			},
-		]);
+		const { createTag } = canCreateTag
+			? await inquirer.prompt([
+					{
+						type: 'confirm',
+						name: 'createTag',
+						message: `Создать git-тег ${tagName}?`,
+						default: true,
+					},
+				])
+			: { createTag: false };
 
 		if (createTag) {
 			try {
 				// Создание git тега
-				console.log(chalk.blue(`\nСоздание git-тега v${newVersion}...`));
+				console.log(chalk.blue(`\nСоздание git-тега ${tagName}...`));
 				spinner.start('Создание тега...');
-				execSync(`git tag -a v${newVersion} -m "Release version ${newVersion}"`, { stdio: 'pipe' });
-				spinner.succeed(`Git-тег v${newVersion} успешно создан`);
+				execSync(`git tag -a ${tagName} -m "Release version ${newVersion}"`, { stdio: 'pipe' });
+				spinner.succeed(`Git-тег ${tagName} успешно создан`);
 
 				// Запрос на отправку тега в удаленный репозиторий
 				const { pushTag } = await inquirer.prompt([
@@ -149,6 +227,7 @@ import ora from 'ora';
 
 		console.log(chalk.green('\nВыпуск успешно завершен!\n'));
 	} catch (error) {
+		exitCode = 1;
 		console.error(chalk.red('Произошла ошибка:'), error);
 	} finally {
 		spinner.start('Удаление временных файлов...');
@@ -171,6 +250,6 @@ import ora from 'ora';
 		} catch (error) {
 			spinner.fail(`Ошибка при удалении временных файлов: ${error.message}`);
 		}
-		process.exit(0); // Используем 0 вместо 1, так как 1 обычно означает ошибку
+		process.exit(exitCode);
 	}
 })();

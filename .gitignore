@@ -2,4 +2,5 @@
 /dist
 /demos/public
 /package-lock.json
+/package/*.tgz
 .lh

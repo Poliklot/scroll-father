@@ -1,111 +1,41 @@
+import { initAnchorScroll } from './initAnchorScroll';
+import type { Cleanup, HashUpdateMode, OffsetValue } from './types';
+
 export interface SmoothScrollOptions {
-	/** Отступ сверху в пикселях (для учета фиксированных элементов) */
-	offset?: number;
-	/** Тип прокрутки: 'smooth' (плавная) или 'auto' (мгновенная) */
+	/** Отступ сверху в пикселях или функция для учета фиксированных элементов. */
+	offset?: OffsetValue;
+	/** Тип прокрутки: 'smooth' (плавная) или 'auto' (мгновенная). */
 	behavior?: ScrollBehavior;
-	/** Очистка хэша из location */
+	/** Очистка хэша из location. */
 	clearHash?: boolean;
-	/** Установка offset top перед каждым скроллом */
+	/** Установка offset top перед каждым скроллом. Совместимо с версией 2.2.4. */
 	setOffsetBeforeScroll?: () => number;
+	/** Фокусировать целевой элемент после клика по якорю. */
+	focusTarget?: boolean;
+	/** Уважать prefers-reduced-motion. */
+	respectReducedMotion?: boolean;
 }
 
 /**
  * Добавляет плавную прокрутку ко всем ссылкам-якорям (`a[href^="#"]`) на странице.
- * Автоматически обрабатывает клики по таким ссылкам и плавно прокручивает страницу к целевому элементу.
+ * Совместимая обёртка над `initAnchorScroll`.
  *
  * @param {SmoothScrollOptions} options - Настройки для плавной прокрутки
- * @returns {void}
  *
- * @example
- * * Базовое использование с настройками по умолчанию
- * smootherAllAnchorLinks();
- *
- * @example
- * * С учетом фиксированной шапки (отступ 60px)
- * smootherAllAnchorLinks({ offset: 60 });
- *
- * @example
- * * С мгновенной прокруткой
- * smootherAllAnchorLinks({ behavior: 'auto' });
+ * @returns Функция для удаления обработчиков клика.
  */
-export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): void {
-	const {
-		offset = 0,
-		behavior = 'smooth' as ScrollBehavior,
-		clearHash = true,
-		setOffsetBeforeScroll
-	} = options;
+export function smootherAllAnchorLinks(options: SmoothScrollOptions = {}): Cleanup {
+	const updateHash: HashUpdateMode = options.clearHash === false ? 'replace' : 'clear';
+	const offset = options.setOffsetBeforeScroll ?? options.offset ?? 0;
 
-	const getScrollOffset = () => setOffsetBeforeScroll ? setOffsetBeforeScroll() : offset;
-	const { origin, pathname, hash, href } = location
-	const urlCurrent = new URL(href, origin);
-
-	// ! При загрузке
-	if (hash) {
-		const hashTemp = hash
-		clearHashInHistory()
-		scrollToElementById(hashTemp)
-	}
-
-	// ! При нажатии
-	document.querySelectorAll('a[href*="#"]').forEach(anchor => {
-		anchor.addEventListener('click', function (e) {
-			const href = anchor.getAttribute('href');
-
-			const urlTarget = new URL(href!, location.href);
-
-			// ! Если на другой сайт или на тот же сайт но страницы разные то ничего не делаем
-			if (urlTarget.origin !== origin || urlTarget.pathname !== pathname) {
-				return
-			}
-
-			// ! Иначе плавный скролл
-			e.preventDefault() // ! Здесь роль clearHash выполняет
-			scrollToElementById(urlTarget.hash)
-		});
+	return initAnchorScroll({
+		selector: 'a[href*="#"]',
+		offset,
+		behavior: options.behavior ?? 'smooth',
+		updateHash,
+		focusTarget: options.focusTarget ?? false,
+		respectReducedMotion: options.respectReducedMotion ?? true,
+		scrollOnLoad: true,
+		delegated: false,
 	});
-
-	function scrollToElementById(hash: string) {
-			if (hash === '#') return;
-
-			const targetId = hash!.substring(1);
-			const elementToScroll = document.getElementById(targetId);
-
-			if (!elementToScroll) return;
-
-			let offsetTop = 0;
-			let currentElement: HTMLElement | null = elementToScroll;
-
-			while (currentElement) {
-				offsetTop += currentElement.offsetTop;
-				currentElement = currentElement.offsetParent as HTMLElement;
-
-				if (!currentElement || currentElement === document.body || currentElement === document.documentElement) {
-					break;
-				}
-			}
-
-			window.scrollTo({
-				top: offsetTop - getScrollOffset(),
-				left: 0,
-				behavior: behavior,
-			});
-
-			const idTimeout = setTimeout(() => {
-			if (clearHash === false) {
-				returnHash(hash);
-			}
-			clearTimeout(idTimeout);
-		}, 1);
-	}
-
-	function clearHashInHistory() {
-		urlCurrent.hash = '';
-		history.replaceState(null, '', urlCurrent.toString());
-	}
-
-	function returnHash(hash: string) {
-		urlCurrent.hash = hash;
-		history.replaceState(null, '', urlCurrent.toString());
-	}
 }
