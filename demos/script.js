@@ -14,6 +14,26 @@ const feed = document.querySelector('[data-feed]');
 const sentinel = document.querySelector('[data-feed-sentinel]');
 const cleanups = [];
 const getHeaderOffset = () => Math.round((header?.getBoundingClientRect().height ?? 0) + 24);
+const stateLabels = {
+	idle: 'ожидание',
+	loading: 'загрузка',
+	done: 'готово',
+	error: 'ошибка',
+};
+
+updateHeaderProgressOffset();
+
+if (header) {
+	const handleHeaderMetrics = () => window.requestAnimationFrame(updateHeaderProgressOffset);
+	window.addEventListener('resize', handleHeaderMetrics);
+	cleanups.push(() => window.removeEventListener('resize', handleHeaderMetrics));
+
+	if ('ResizeObserver' in window) {
+		const observer = new ResizeObserver(handleHeaderMetrics);
+		observer.observe(header);
+		cleanups.push(() => observer.disconnect());
+	}
+}
 
 cleanups.push(
 	initAnchorScroll({
@@ -36,7 +56,7 @@ cleanups.push(
 		visibleClass: 'is-visible',
 		hiddenClass: 'is-hidden',
 		attribute: 'data-reveal-state',
-		stagger: 75,
+		stagger: index => Math.min(index, 8) * 18,
 	}),
 	initScrollProgress({
 		element: document.documentElement,
@@ -49,67 +69,118 @@ cleanups.push(
 
 const feedItems = [
 	{
-		title: 'Docs page с липкой навигацией',
-		text: 'Anchor Scroll и ScrollSpy держат меню синхронизированным с секциями, даже если header меняет высоту.',
-		api: 'initAnchorScroll + initScrollSpy',
+		title: 'Документация с активным меню',
+		text: 'Пункты навигации сами подсвечиваются, а якорные переходы учитывают высоту шапки.',
+		api: 'якоря + активное меню',
 	},
 	{
-		title: 'Landing с мягким reveal',
-		text: 'Reveal управляет состоянием, а вся выразительность остается в CSS: проще поддерживать и брендировать.',
-		api: 'initRevealOnScroll',
+		title: 'Лендинг с быстрым появлением блоков',
+		text: 'Библиотека ставит состояние, CSS отвечает за внешний вид, а задержка появления не копится до бесконечности.',
+		api: 'появление элементов',
 	},
 	{
-		title: 'Longread с прогрессом чтения',
-		text: 'Scroll Progress пишет значение в CSS variable, поэтому UI можно собрать без лишнего JavaScript.',
-		api: 'initScrollProgress',
+		title: 'Лонгрид с прогрессом чтения',
+		text: 'Значение прогресса пишется в CSS-переменную, поэтому полоску можно оформить без лишнего JavaScript.',
+		api: 'прогресс чтения',
 	},
 	{
-		title: 'Каталог с догрузкой товаров',
-		text: 'Infinite Loader работает через sentinel и передает AbortSignal для отмены запроса при cleanup.',
-		api: 'initInfiniteLoader',
+		title: 'Каталог с дозагрузкой товаров',
+		text: 'Маяк внизу списка просит следующую страницу заранее, пока пользователь еще не уперся в пустоту.',
+		api: 'бесконечная лента',
 	},
 	{
 		title: 'Шапка, которая не мешает читать',
-		text: 'Direction tracking ставит data-scroll-direction на body, а CSS решает, когда прятать или показывать header.',
-		api: 'initScrollDirectionTracking',
+		text: 'Направление скролла пишется в body, а CSS полностью прячет шапку и оставляет только прогресс.',
+		api: 'направление скролла',
 	},
 	{
-		title: 'Совместимость со старым API',
-		text: 'Legacy helpers оставлены для плавной миграции: можно обновить пакет без переписывания проекта за ночь.',
-		api: 'smootherAllAnchorLinks',
+		title: 'Мягкая миграция со старого API',
+		text: 'Старые helpers оставлены, чтобы обновление пакета не превращалось в ночной переписанный проект.',
+		api: 'совместимость',
 	},
 	{
-		title: 'SSR-safe импорт в приложении',
-		text: 'Инициализаторы возвращают noop без browser globals, поэтому пакет не ломает серверный рендер.',
-		api: 'cleanup-first API',
+		title: 'Безопасный импорт на сервере',
+		text: 'Если нет browser globals, инициализаторы возвращают безопасную пустую очистку и не валят сборку.',
+		api: 'SSR без падений',
 	},
 	{
-		title: 'Динамический fixed-header offset',
-		text: 'Offset может быть функцией: высота header, admin bar, cookie banner или любое runtime-условие.',
-		api: 'OffsetValue',
+		title: 'Динамический отступ для шапки',
+		text: 'Отступ может быть функцией: высота шапки, админ-панель, баннер cookies или любое условие во время работы.',
+		api: 'динамический offset',
 	},
 	{
-		title: 'Навигация с accessibility по умолчанию',
-		text: 'Hash handling, focus target и aria-current помогают не забывать о клавиатуре и screen readers.',
-		api: 'focusTarget + ariaCurrent',
+		title: 'Доступная навигация без забытых мелочей',
+		text: 'Фокус на целевом блоке и aria-current помогают клавиатуре и скринридерам понимать, где пользователь.',
+		api: 'focus + aria-current',
+	},
+	{
+		title: 'Страница портфолио',
+		text: 'Проекты могут появляться быстро и последовательно, но без ощущения, что интерфейс догоняет пользователя.',
+		api: 'быстрый reveal',
+	},
+	{
+		title: 'Список статей',
+		text: 'Прогресс чтения и активные разделы помогают не теряться в длинном материале.',
+		api: 'статьи и разделы',
+	},
+	{
+		title: 'Прайс или тарифы',
+		text: 'Плавные якоря ведут к нужному тарифу, а липкая навигация показывает текущий блок.',
+		api: 'якорные переходы',
+	},
+	{
+		title: 'Лента новостей',
+		text: 'Дозагрузка идет порциями, состояние видно сразу, а завершение не требует костылей.',
+		api: 'done-состояние',
+	},
+	{
+		title: 'Каталог услуг',
+		text: 'Карточки можно догружать заранее, а при уходе со страницы отменять текущий запрос.',
+		api: 'AbortSignal',
+	},
+	{
+		title: 'Витрина продукта',
+		text: 'Прокрутка, подсветка меню и прогресс работают вместе, но каждая часть включается отдельно.',
+		api: 'модульный подход',
+	},
+	{
+		title: 'Раздел с частыми вопросами',
+		text: 'Активная секция и плавный переход помогают быстро вернуться к нужному вопросу.',
+		api: 'активная секция',
+	},
+	{
+		title: 'Обучающий материал',
+		text: 'Пользователь видит, сколько осталось читать, а меню не теряет текущий урок.',
+		api: 'прогресс + меню',
+	},
+	{
+		title: 'Длинная главная страница',
+		text: 'Шапка исчезает при чтении вниз и возвращается при движении вверх, не перекрывая контент.',
+		api: 'умная шапка',
+	},
+	{
+		title: 'Мини-приложение без фреймворка',
+		text: 'Все сценарии можно собрать на обычном DOM без компонентной системы и внешних зависимостей.',
+		api: 'обычный DOM',
 	},
 ];
 let renderedCount = 0;
 
 if (feed && sentinel) {
-	appendFeedItems(feedItems.slice(0, 3));
-	renderedCount = 3;
+	appendFeedItems(feedItems.slice(0, 6));
+	renderedCount = 6;
+	setLoaderText('idle');
 
 	cleanups.push(
 		initInfiniteLoader({
 			sentinel,
-			rootMargin: '480px 0px',
+			rootMargin: '900px 0px',
 			initialPage: 2,
 			loadMore: async ({ done }) => {
 				setLoaderText('loading');
-				await wait(360);
+				await wait(90);
 
-				const nextItems = feedItems.slice(renderedCount, renderedCount + 2);
+				const nextItems = feedItems.slice(renderedCount, renderedCount + 4);
 				if (nextItems.length === 0) {
 					setLoaderText('done');
 					sentinel.classList.add('is-done');
@@ -147,7 +218,7 @@ function appendFeedItems(items) {
 		const card = document.createElement('article');
 		card.className = 'feed-card';
 		card.setAttribute('data-reveal-state', 'visible');
-		card.style.setProperty('--feed-delay', `${index * 60}ms`);
+		card.style.setProperty('--feed-delay', `${index * 24}ms`);
 		card.innerHTML = `
 			<span>${item.api}</span>
 			<h3>${item.title}</h3>
@@ -161,8 +232,19 @@ function appendFeedItems(items) {
 
 function setLoaderText(state) {
 	if (loaderState) {
-		loaderState.textContent = state;
+		loaderState.textContent = stateLabels[state] ?? state;
 	}
+}
+
+function updateHeaderProgressOffset() {
+	if (!header) {
+		return;
+	}
+
+	const rect = header.getBoundingClientRect();
+	const offset = Math.max(rect.top + rect.height + 6, 0);
+
+	document.documentElement.style.setProperty('--header-progress-offset', `${Math.round(offset)}px`);
 }
 
 function wait(ms) {

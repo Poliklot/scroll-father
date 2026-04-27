@@ -13,6 +13,7 @@
 	--shadow: 0 28px 90px rgba(15, 23, 42, 0.16);
 	--radius-lg: 30px;
 	--radius-md: 20px;
+	--header-progress-offset: 88px;
 	--page-progress: 0;
 	font-family: 'IBM Plex Sans', 'Aptos', 'Segoe UI', sans-serif;
 	color: var(--ink);
@@ -52,7 +53,13 @@ body::before {
 }
 
 body[data-scroll-direction='down'][data-scrolled] .site-header:not(:focus-within) {
-	transform: translateY(calc(-100% + 18px));
+	transform: translateY(calc(-100% - 32px));
+}
+
+body[data-scroll-direction='down'][data-scrolled] .progress-line {
+	width: 100%;
+	border-radius: 0;
+	transform: translate(-50%, 0);
 }
 
 a {
@@ -86,11 +93,20 @@ code {
 .progress-line {
 	position: fixed;
 	top: 0;
-	left: 0;
-	z-index: 100;
-	width: 100%;
-	height: 4px;
+	left: 50%;
+	z-index: 60;
+	width: calc(100% - 32px);
+	max-width: 1180px;
+	height: 5px;
+	overflow: hidden;
+	border-radius: 999px;
 	background: rgba(15, 23, 42, 0.08);
+	box-shadow: 0 10px 32px rgba(15, 23, 42, 0.12);
+	transform: translate(-50%, var(--header-progress-offset));
+	transition:
+		width 220ms ease,
+		border-radius 220ms ease,
+		transform 220ms ease;
 }
 
 .progress-line span {
@@ -576,7 +592,7 @@ h3 {
 
 .feed-card {
 	min-height: 210px;
-	animation: feed-in 420ms ease both;
+	animation: feed-in 180ms ease-out both;
 	animation-delay: var(--feed-delay, 0ms);
 }
 
@@ -654,10 +670,10 @@ h3 {
 
 [data-reveal] {
 	opacity: 0;
-	transform: translateY(22px);
+	transform: translateY(10px);
 	transition:
-		opacity 520ms ease,
-		transform 520ms ease;
+		opacity 220ms ease-out,
+		transform 220ms ease-out;
 	transition-delay: var(--reveal-delay, 0ms);
 }
 
@@ -685,7 +701,7 @@ h3 {
 @keyframes feed-in {
 	from {
 		opacity: 0;
-		transform: translateY(18px);
+		transform: translateY(10px);
 	}
 	to {
 		opacity: 1;
@@ -735,6 +751,7 @@ h3 {
 
 @media (max-width: 680px) {
 	.site-header,
+	.progress-line,
 	.section-shell,
 	.footer {
 		width: calc(100% - 20px);
