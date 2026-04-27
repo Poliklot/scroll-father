@@ -92,7 +92,7 @@
 						<span class="window-dot"></span>
 						<span class="hero-card__file">landing.ts</span>
 					</div>
-					<pre><code>import {
+					<pre><code class="language-ts">import {
 	initAnchorScroll,
 	initScrollSpy,
 	initRevealOnScroll,
@@ -160,32 +160,32 @@ const cleanups = [
 					<article class="feature-card" data-reveal>
 						<h3>Плавные якоря</h3>
 						<p>Отступ для шапки, фокус на целевом блоке, управление адресной строкой и делегирование кликов.</p>
-						<code>initAnchorScroll({ offset })</code>
+						<code class="language-ts">initAnchorScroll({ offset })</code>
 					</article>
 					<article class="feature-card" data-reveal>
 						<h3>Активная навигация</h3>
 						<p>Подсветка пункта меню, `data-active-section` и `aria-current` для доступности.</p>
-						<code>initScrollSpy({ sections })</code>
+						<code class="language-ts">initScrollSpy({ sections })</code>
 					</article>
 					<article class="feature-card" data-reveal>
 						<h3>Появление элементов</h3>
 						<p>Состояния для CSS-анимаций, быстрый stagger и уважение `prefers-reduced-motion`.</p>
-						<code>initRevealOnScroll({ once: true })</code>
+						<code class="language-ts">initRevealOnScroll({ once: true })</code>
 					</article>
 					<article class="feature-card" data-reveal>
 						<h3>Прогресс чтения</h3>
 						<p>Значение прогресса в CSS-переменной, атрибуте или обработчике.</p>
-						<code>initScrollProgress()</code>
+						<code class="language-ts">initScrollProgress()</code>
 					</article>
 					<article class="feature-card" data-reveal>
 						<h3>Бесконечная лента</h3>
 						<p>Загрузка по маяку с номером страницы, сигналом отмены, завершением и повтором.</p>
-						<code>initInfiniteLoader({ sentinel })</code>
+						<code class="language-ts">initInfiniteLoader({ sentinel })</code>
 					</article>
 					<article class="feature-card" data-reveal>
 						<h3>Совместимость</h3>
 						<p>Отложенные обработчики, состояние скролла, направление движения и старые функции для мягкой миграции.</p>
-						<code>smootherAllAnchorLinks()</code>
+						<code class="language-ts">smootherAllAnchorLinks()</code>
 					</article>
 				</div>
 			</section>
@@ -202,7 +202,7 @@ const cleanups = [
 							<span class="recipe__tag">Лендинг</span>
 							<h3>Липкая шапка + плавные якоря</h3>
 						</div>
-						<pre><code>initAnchorScroll({
+						<pre><code class="language-ts">initAnchorScroll({
 	offset: () => header.offsetHeight + 24,
 	updateHash: 'replace',
 	focusTarget: true,
@@ -213,7 +213,7 @@ const cleanups = [
 							<span class="recipe__tag">Документация</span>
 							<h3>Активная навигация документации</h3>
 						</div>
-						<pre><code>initScrollSpy({
+						<pre><code class="language-ts">initScrollSpy({
 	sections: 'section[id]',
 	navLinks: '.site-nav a',
 	ariaCurrent: 'location',
@@ -224,7 +224,7 @@ const cleanups = [
 							<span class="recipe__tag">Каталог</span>
 							<h3>Дозагрузка карточек по маяку</h3>
 						</div>
-						<pre><code>initInfiniteLoader({
+						<pre><code class="language-ts">initInfiniteLoader({
 	sentinel: '#feed-sentinel',
 	loadMore: ({ page, signal, done }) => fetchPage(page, signal, done),
 });</code></pre>

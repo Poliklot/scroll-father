@@ -101,6 +101,41 @@ code {
 	overflow-wrap: anywhere;
 }
 
+pre code[class*='language-'] {
+	display: block;
+	color: #dbeafe;
+}
+
+code.language-ts {
+	color: #dbeafe;
+}
+
+.feature-card code.language-ts {
+	color: #bfdbfe;
+}
+
+.code-token--keyword {
+	color: #93c5fd;
+	font-weight: 800;
+}
+
+.code-token--function {
+	color: #fbbf24;
+}
+
+.code-token--string {
+	color: #86efac;
+}
+
+.code-token--number {
+	color: #fda4af;
+}
+
+.code-token--comment {
+	color: #94a3b8;
+	font-style: italic;
+}
+
 .progress-line {
 	position: fixed;
 	top: 0;

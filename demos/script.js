@@ -61,6 +61,8 @@ cleanups.push(
 	trackScrollState({ element: document.body }),
 );
 
+highlightTypeScriptSnippets();
+
 const feedItems = [
 	{
 		title: 'Документация с активным меню',
@@ -450,4 +452,65 @@ function wait(ms) {
 	return new Promise(resolve => {
 		window.setTimeout(resolve, ms);
 	});
+}
+
+function highlightTypeScriptSnippets() {
+	document.querySelectorAll('code.language-ts').forEach(code => {
+		if (code.dataset.highlighted === 'true') {
+			return;
+		}
+
+		code.innerHTML = highlightTypeScript(code.textContent ?? '');
+		code.dataset.highlighted = 'true';
+	});
+}
+
+function highlightTypeScript(source) {
+	const placeholders = new Map();
+	const escaped = escapeHtml(source).replace(
+		/\/\*[\s\S]*?\*\/|\/\/[^\n]*|`(?:\\[\s\S]|[^`\\])*`|'(?:\\[\s\S]|[^'\\])*'|"(?:\\[\s\S]|[^"\\])*"/g,
+		match => {
+			const type = match.startsWith('//') || match.startsWith('/*') ? 'comment' : 'string';
+			const marker = `\uE000${createPlaceholderKey(placeholders.size)}\uE000`;
+			placeholders.set(marker, `<span class="code-token code-token--${type}">${match}</span>`);
+			return marker;
+		},
+	);
+
+	return escaped
+		.replace(
+			/\b(import|from|const|let|var|return|async|await|new|function|type|interface|export|default|if|else|true|false|null|undefined)\b|\b([A-Za-z_$][\w$]*)(?=\s*\()|\b(\d+(?:\.\d+)?)\b/g,
+			(match, keyword, fnName, number) => {
+				if (keyword) {
+					return `<span class="code-token code-token--keyword">${match}</span>`;
+				}
+
+				if (fnName) {
+					return `<span class="code-token code-token--function">${match}</span>`;
+				}
+
+				return `<span class="code-token code-token--number">${match}</span>`;
+			},
+		)
+		.replace(/\uE000[A-Z]+\uE000/g, marker => placeholders.get(marker) ?? '');
+}
+
+function escapeHtml(value) {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;');
+}
+
+function createPlaceholderKey(index) {
+	let next = index;
+	let key = '';
+
+	do {
+		key = String.fromCharCode(65 + (next % 26)) + key;
+		next = Math.floor(next / 26) - 1;
+	} while (next >= 0);
+
+	return key;
 }
