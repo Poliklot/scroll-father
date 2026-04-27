@@ -20,6 +20,29 @@
 		<div class="progress-line" aria-hidden="true"><span></span></div>
 
 		<header class="site-header" data-site-header>
+			<svg
+				class="header-progress"
+				viewBox="0 0 1000 64"
+				preserveAspectRatio="none"
+				aria-hidden="true"
+				focusable="false"
+			>
+				<defs>
+					<linearGradient id="header-progress-gradient" x1="0" y1="0" x2="1" y2="0">
+						<stop offset="0%" stop-color="#f59e0b" />
+						<stop offset="48%" stop-color="#2563eb" />
+						<stop offset="100%" stop-color="#0f766e" />
+					</linearGradient>
+				</defs>
+				<path
+					class="header-progress__track"
+					d="M 2 32 A 30 30 0 0 1 32 2 H 968 A 30 30 0 0 1 998 32"
+				/>
+				<path
+					class="header-progress__value"
+					d="M 2 32 A 30 30 0 0 1 32 2 H 968 A 30 30 0 0 1 998 32"
+				/>
+			</svg>
 			<a class="brand" href="#hero" aria-label="Scroll Father home">
 				<span class="brand__mark" aria-hidden="true">SF</span>
 				<span>

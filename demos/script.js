@@ -21,20 +21,6 @@ const stateLabels = {
 	error: 'ошибка',
 };
 
-updateHeaderProgressOffset();
-
-if (header) {
-	const handleHeaderMetrics = () => window.requestAnimationFrame(updateHeaderProgressOffset);
-	window.addEventListener('resize', handleHeaderMetrics);
-	cleanups.push(() => window.removeEventListener('resize', handleHeaderMetrics));
-
-	if ('ResizeObserver' in window) {
-		const observer = new ResizeObserver(handleHeaderMetrics);
-		observer.observe(header);
-		cleanups.push(() => observer.disconnect());
-	}
-}
-
 cleanups.push(
 	initAnchorScroll({
 		selector: 'a[href^="#"]',
@@ -234,17 +220,6 @@ function setLoaderText(state) {
 	if (loaderState) {
 		loaderState.textContent = stateLabels[state] ?? state;
 	}
-}
-
-function updateHeaderProgressOffset() {
-	if (!header) {
-		return;
-	}
-
-	const rect = header.getBoundingClientRect();
-	const offset = Math.max(rect.top + rect.height + 6, 0);
-
-	document.documentElement.style.setProperty('--header-progress-offset', `${Math.round(offset)}px`);
 }
 
 function wait(ms) {
