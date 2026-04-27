@@ -29,6 +29,15 @@ CDN/IIFE:
 <script src="https://cdn.jsdelivr.net/npm/scroll-father/ScrollFather.min.js"></script>
 ```
 
+## Демо
+
+Локальная витрина показывает реальные сценарии Scroll Father: якоря, scrollspy, reveal, progress bar, direction tracking и
+infinite loader на одной странице.
+
+```bash
+npm run demos
+```
+
 ## Быстрый старт
 
 ```ts

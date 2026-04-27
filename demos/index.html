@@ -2,36 +2,261 @@
 <html lang="ru">
 	<head>
 		<meta charset="UTF-8" />
-		<title>ScrollFather Demos</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta
+			name="description"
+			content="Scroll Father — TypeScript toolkit для плавных якорей, scrollspy, reveal-анимаций, прогресса чтения и infinite loading."
+		/>
+		<title>Scroll Father — scroll UI toolkit</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"
+			rel="stylesheet"
+		/>
 		<link rel="stylesheet" href="./styles/styles.scss" />
 	</head>
 	<body>
-		<div class="wrapper">
-			<header class="header">
-				<h1>ScrollFather Demos</h1>
-			</header>
-			<main class="main">
-				<ul class="main__nav">
-					<li class="main__nav-item">
-						<a class="link-primary" href="./demo-1/index.html">Demo - 1</a>
-					</li>
-					<li class="main__nav-item">
-						<a class="link-primary" href="#prefooter">prefooter section</a>
-					</li>
-				</ul>
-				<div class="section"></div>
-				<div class="section"></div>
-				<div class="section"></div>
-				<div class="section"></div>
-				<div id="prefooter" class="section">
-					<h2>prefooter section</h2>
+		<div class="progress-line" aria-hidden="true"><span></span></div>
+
+		<header class="site-header" data-site-header>
+			<a class="brand" href="#hero" aria-label="Scroll Father home">
+				<span class="brand__mark" aria-hidden="true">SF</span>
+				<span>
+					<span class="brand__name">Scroll Father</span>
+					<span class="brand__caption">zero-dependency scroll primitives</span>
+				</span>
+			</a>
+
+			<nav class="site-nav" aria-label="Основная навигация">
+				<a href="#pain">Боли</a>
+				<a href="#features">Функции</a>
+				<a href="#recipes">Рецепты</a>
+				<a href="#playground">Playground</a>
+				<a href="#install">Установка</a>
+			</nav>
+
+			<a class="header-cta" href="https://www.npmjs.com/package/scroll-father" target="_blank" rel="noreferrer">
+				npm package
+			</a>
+		</header>
+
+		<main>
+			<section class="hero section-shell" id="hero" aria-labelledby="hero-title">
+				<div class="hero__copy" data-reveal>
+					<p class="eyebrow">Scroll UI without framework lock-in</p>
+					<h1 id="hero-title">Скролл, который не бесит пользователей и не ломает разработчикам вечер.</h1>
+					<p class="hero__lead">
+						Scroll Father собирает повседневные scroll-паттерны в маленький TypeScript toolkit: smooth anchors,
+						scrollspy, reveal, progress bar, direction tracking и infinite loading с cleanup-first API.
+					</p>
+					<div class="hero__actions" aria-label="Быстрые действия">
+						<a class="button button--primary" href="#install">Установить</a>
+						<a class="button button--ghost" href="#playground">Смотреть демо</a>
+					</div>
+					<ul class="hero__proof" aria-label="Ключевые свойства">
+						<li>0 runtime dependencies</li>
+						<li>SSR-safe</li>
+						<li>cleanup-first</li>
+						<li>TypeScript types</li>
+					</ul>
 				</div>
-				<div class="section"></div>
-			</main>
-			<footer class="footer">
-				<p>© 2024 ScrollFather</p>
-			</footer>
-		</div>
+
+				<aside class="hero-card" data-reveal aria-label="Пример использования">
+					<div class="hero-card__topline">
+						<span class="window-dot"></span>
+						<span class="window-dot"></span>
+						<span class="window-dot"></span>
+						<span class="hero-card__file">landing.ts</span>
+					</div>
+					<pre><code>import {
+	initAnchorScroll,
+	initScrollSpy,
+	initRevealOnScroll,
+	initScrollProgress,
+} from 'scroll-father';
+
+const offset = () => header.offsetHeight + 24;
+
+const cleanups = [
+	initAnchorScroll({ offset, updateHash: 'replace' }),
+	initScrollSpy({ sections: 'section[id]', offset }),
+	initRevealOnScroll({ elements: '[data-reveal]' }),
+	initScrollProgress({ cssVariable: '--page-progress' }),
+];</code></pre>
+				</aside>
+			</section>
+
+			<section class="section-shell pain" id="pain" aria-labelledby="pain-title">
+				<div class="section-heading" data-reveal>
+					<p class="eyebrow">Зачем это людям</p>
+					<h2 id="pain-title">Пять типичных scroll-болей закрываются одним маленьким пакетом.</h2>
+				</div>
+				<div class="pain-grid">
+					<article class="pain-card" data-reveal>
+						<span class="card-index">01</span>
+						<h3>Fixed header съедает якорь</h3>
+						<p>Динамический offset считает реальную высоту шапки перед каждым переходом.</p>
+					</article>
+					<article class="pain-card" data-reveal>
+						<span class="card-index">02</span>
+						<h3>Меню не показывает контекст</h3>
+						<p>ScrollSpy подсвечивает активную секцию и ставит `aria-current` для доступности.</p>
+					</article>
+					<article class="pain-card" data-reveal>
+						<span class="card-index">03</span>
+						<h3>Анимации расползаются по проекту</h3>
+						<p>Reveal engine только управляет состоянием, а дизайн остается в CSS.</p>
+					</article>
+					<article class="pain-card" data-reveal>
+						<span class="card-index">04</span>
+						<h3>Нужен reading progress</h3>
+						<p>Progress пишется в CSS variable или callback без привязки к UI-фреймворку.</p>
+					</article>
+					<article class="pain-card pain-card--wide" data-reveal>
+						<span class="card-index">05</span>
+						<h3>Infinite scroll должен уметь abort, retry и done</h3>
+						<p>Sentinel loader держит состояния загрузки, отменяет запросы при cleanup и не требует тяжелых зависимостей.</p>
+					</article>
+				</div>
+			</section>
+
+			<section class="section-shell features" id="features" aria-labelledby="features-title">
+				<div class="section-heading section-heading--split" data-reveal>
+					<div>
+						<p class="eyebrow">Toolkit</p>
+						<h2 id="features-title">Не компонентная библиотека. А набор точных DOM-примитивов.</h2>
+					</div>
+					<p>
+						Подключается в vanilla, React, Vue, Astro, Webflow-export или любом месте, где есть DOM. Каждый initializer
+						возвращает cleanup-функцию.
+					</p>
+				</div>
+
+				<div class="feature-grid">
+					<article class="feature-card" data-reveal>
+						<h3>Anchor Scroll</h3>
+						<p>Плавные якоря, focus target, hash modes, delegated links.</p>
+						<code>initAnchorScroll({ offset })</code>
+					</article>
+					<article class="feature-card" data-reveal>
+						<h3>ScrollSpy</h3>
+						<p>Активное меню, `data-active-section`, `aria-current`.</p>
+						<code>initScrollSpy({ sections })</code>
+					</article>
+					<article class="feature-card" data-reveal>
+						<h3>Reveal</h3>
+						<p>State engine для появления элементов с stagger и reduced motion.</p>
+						<code>initRevealOnScroll({ once: true })</code>
+					</article>
+					<article class="feature-card" data-reveal>
+						<h3>Progress</h3>
+						<p>Scroll progress в CSS variable, attribute или callback.</p>
+						<code>initScrollProgress()</code>
+					</article>
+					<article class="feature-card" data-reveal>
+						<h3>Infinite Loader</h3>
+						<p>Sentinel-based загрузка с page, signal, done, error и retry.</p>
+						<code>initInfiniteLoader({ sentinel })</code>
+					</article>
+					<article class="feature-card" data-reveal>
+						<h3>Legacy Helpers</h3>
+						<p>Debounce, scroll state, direction tracking и совместимость старого API.</p>
+						<code>smootherAllAnchorLinks()</code>
+					</article>
+				</div>
+			</section>
+
+			<section class="section-shell recipes" id="recipes" aria-labelledby="recipes-title">
+				<div class="section-heading" data-reveal>
+					<p class="eyebrow">Recipes</p>
+					<h2 id="recipes-title">Сценарии, которые чаще всего нужны в реальных интерфейсах.</h2>
+				</div>
+
+				<div class="recipe-list">
+					<article class="recipe" data-reveal>
+						<div>
+							<span class="recipe__tag">Landing</span>
+							<h3>Sticky header + плавные якоря</h3>
+						</div>
+						<pre><code>initAnchorScroll({
+	offset: () => header.offsetHeight + 24,
+	updateHash: 'replace',
+	focusTarget: true,
+});</code></pre>
+					</article>
+					<article class="recipe" data-reveal>
+						<div>
+							<span class="recipe__tag">Docs</span>
+							<h3>Активная навигация документации</h3>
+						</div>
+						<pre><code>initScrollSpy({
+	sections: 'section[id]',
+	navLinks: '.site-nav a',
+	ariaCurrent: 'location',
+});</code></pre>
+					</article>
+					<article class="recipe" data-reveal>
+						<div>
+							<span class="recipe__tag">Catalog</span>
+							<h3>Дозагрузка карточек по sentinel</h3>
+						</div>
+						<pre><code>initInfiniteLoader({
+	sentinel: '#feed-sentinel',
+	loadMore: ({ page, signal, done }) => fetchPage(page, signal, done),
+});</code></pre>
+					</article>
+				</div>
+			</section>
+
+			<section class="section-shell playground" id="playground" aria-labelledby="playground-title">
+				<div class="section-heading section-heading--split" data-reveal>
+					<div>
+						<p class="eyebrow">Live playground</p>
+						<h2 id="playground-title">Скролль ниже: лента догружает новые карточки через `initInfiniteLoader`.</h2>
+					</div>
+					<p>
+						Эта страница уже использует progress, anchor scroll, scrollspy, reveal, scroll direction и infinite loader.
+						То есть демо не нарисовано — оно работает на самом пакете.
+					</p>
+				</div>
+
+				<div class="loader-panel" data-reveal>
+					<div class="loader-panel__header">
+						<span class="recipe__tag">Generated feed</span>
+						<strong data-loader-state>idle</strong>
+					</div>
+					<div class="feed" data-feed aria-live="polite"></div>
+					<div class="feed-sentinel" data-feed-sentinel>
+						<span></span>
+						<p>Подходим к sentinel и просим следующую порцию.</p>
+					</div>
+				</div>
+			</section>
+
+			<section class="section-shell install" id="install" aria-labelledby="install-title">
+				<div class="install-card" data-reveal>
+					<div>
+						<p class="eyebrow">Ship it</p>
+						<h2 id="install-title">Установка занимает одну команду.</h2>
+						<p>Дальше можно брать только нужные функции, tree-shaking не тянет лишнее.</p>
+					</div>
+					<pre><code>npm i scroll-father</code></pre>
+					<div class="install-card__actions">
+						<a class="button button--primary" href="https://github.com/Poliklot/scroll-father" target="_blank" rel="noreferrer">
+							GitHub
+						</a>
+						<a class="button button--ghost" href="./demo-1/index.html">Legacy demo</a>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<footer class="footer">
+			<p>Scroll Father, 2026. Сделано для интерфейсов, которые уважают движение.</p>
+			<a href="#hero">Вернуться наверх</a>
+		</footer>
+
 		<script src="./script.js" type="module"></script>
 	</body>
 </html>
