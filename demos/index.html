@@ -245,9 +245,17 @@ const cleanups = [
 				</div>
 
 				<div class="loader-panel" data-reveal>
-					<div class="loader-panel__header">
-						<span class="recipe__tag">Демо-лента</span>
-						<strong data-loader-state>ожидание</strong>
+					<div class="loader-panel__header" data-loader-status>
+						<div class="loader-panel__copy">
+							<span class="recipe__tag">Демо-лента</span>
+							<p>Липкая панель показывает, как `initInfiniteLoader` проходит цикл загрузки.</p>
+						</div>
+						<div class="loader-panel__state">
+							<span>Состояние</span>
+							<strong data-loader-state>Ожидаем</strong>
+							<small data-loader-count>0 из 50</small>
+						</div>
+						<ol class="loader-panel__history" data-loader-history aria-label="История состояний загрузки"></ol>
 					</div>
 					<div class="feed" data-feed aria-live="polite"></div>
 					<div class="feed-sentinel" data-feed-sentinel>
