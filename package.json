@@ -1,8 +1,21 @@
 {
 	"name": "scroll-father",
-	"version": "2.4.0",
+	"version": "2.4.1",
 	"description": "Scroll Father: A library for scroll events and dynamic class handling.",
 	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./ScrollFather.min.js": "./dist/ScrollFather.min.js"
+	},
+	"unpkg": "./dist/ScrollFather.min.js",
+	"jsdelivr": "./dist/ScrollFather.min.js",
 	"scripts": {
 		"build": "rollup -c",
 		"smoke": "node scripts/smoke-test.js",

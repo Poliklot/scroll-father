@@ -4,6 +4,13 @@
 
 Формат близок к [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/), версии следуют [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [2.4.1] - 2026-05-19
+
+### Исправлено
+
+- Восстановлены корневые npm entrypoints: `main`, `module`, `types`, `exports`, `unpkg` и `jsdelivr`. Теперь `import ... from 'scroll-father'` корректно резолвится в webpack и TypeScript без алиасов в приложениях.
+- Синхронизирован flattened-манифест `package/package.json` для релиза из директории `package`.
+
 ## [2.4.0] - 2026-04-25
 
 ### Добавлено

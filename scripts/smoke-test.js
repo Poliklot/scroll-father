@@ -12,7 +12,17 @@ const rootPkg = readJson('package.json');
 const publishPkg = readJson('package/package.json');
 
 assert.equal(rootPkg.version, publishPkg.version, 'root and publish package versions should match');
+assert.equal(rootPkg.main, './dist/index.js', 'root package main should point to dist/index.js');
+assert.equal(rootPkg.module, './dist/index.js', 'root package module should point to dist/index.js');
+assert.equal(rootPkg.types, './dist/index.d.ts', 'root package types should point to dist/index.d.ts');
+assert.equal(rootPkg.exports['.'].types, './dist/index.d.ts', 'root package types export should point to dist/index.d.ts');
+assert.equal(rootPkg.exports['.'].import, './dist/index.js', 'root package import export should point to dist/index.js');
+assert.equal(rootPkg.exports['.'].default, './dist/index.js', 'root package default export should point to dist/index.js');
+assert.equal(rootPkg.exports['./ScrollFather.min.js'], './dist/ScrollFather.min.js', 'root package should expose the IIFE bundle subpath');
+assert.equal(rootPkg.jsdelivr, './dist/ScrollFather.min.js', 'root package jsDelivr entry should point to the IIFE bundle');
+assert.equal(rootPkg.unpkg, './dist/ScrollFather.min.js', 'root package unpkg entry should point to the IIFE bundle');
 assert.equal(publishPkg.main, 'index.js', 'publish package main should point to index.js');
+assert.equal(publishPkg.module, 'index.js', 'publish package module should point to index.js');
 assert.equal(publishPkg.types, 'index.d.ts', 'publish package types should point to index.d.ts');
 assert.equal(publishPkg.exports['.'].import, './index.js', 'publish package root export should point to index.js');
 assert.equal(publishPkg.jsdelivr, './ScrollFather.min.js', 'jsDelivr entry should point to the IIFE bundle');
@@ -32,8 +42,10 @@ const expectedExports = [
 	'trackScrollState',
 ];
 const distModule = await import(pathToFileURL(path.join(rootDir, 'dist/index.js')).href);
+const packageModule = await import(rootPkg.name);
 
 assert.deepEqual(Object.keys(distModule).sort(), expectedExports.sort(), 'dist/index.js should expose the public API');
+assert.deepEqual(Object.keys(packageModule).sort(), expectedExports.sort(), 'package self-reference should expose the public API');
 
 expectedExports.forEach(exportName => {
 	assert.equal(typeof distModule[exportName], 'function', `${exportName} should be a function`);
