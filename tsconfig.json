@@ -8,7 +8,15 @@
 		"strict": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": true,
+		"rootDir": "src",
+		"moduleResolution": "Bundler",
+		"lib": [
+			"ES2018",
+			"DOM"
+		]
 	},
-	"include": ["src/**/*"]
+	"include": [
+		"src/**/*"
+	]
 }
